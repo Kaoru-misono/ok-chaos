@@ -5,7 +5,6 @@ from typing import Any
 from src.privacy import redact_bottom_right
 from src.tasks.ChaosTask import (
     AutoCardCollectorTask,
-    AutoEpiphanyCollectorTask,
     CardCollectorTask,
     ChaosTask,
     CurrentCardRecognitionTask,
@@ -62,6 +61,5 @@ def build_config(*, debug: bool = False, config_folder: str = "configs") -> dict
             [CurrentCardRecognitionTask.__module__, CurrentCardRecognitionTask.__name__],
             [CardCollectorTask.__module__, CardCollectorTask.__name__],
             [AutoCardCollectorTask.__module__, AutoCardCollectorTask.__name__],
-            [AutoEpiphanyCollectorTask.__module__, AutoEpiphanyCollectorTask.__name__],
         ],
     }

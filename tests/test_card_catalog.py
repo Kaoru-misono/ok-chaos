@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from src.chaos.cards.catalog import CardCatalog, CatalogError
-from src.chaos.cards.enums import EffectOp
+from src.chaos.cards.enums import CardType, EffectOp, TargetMode
 
 
 def card_document(*, owner: str = "character_a", slot: int = 1) -> dict:
@@ -225,3 +225,46 @@ def test_empty_character_catalog_is_valid(tmp_path: Path) -> None:
 
     assert catalog.summary.cards == 0
     assert catalog.summary.source_files == 0
+
+
+def test_unplayable_base_cost_sentinel_is_accepted(tmp_path: Path) -> None:
+    document = card_document()
+    document["variants"] = []
+    document["cards"][0]["base_cost"] = -1
+    write_document(tmp_path, "character_a.json", document)
+
+    catalog = CardCatalog.from_directory(tmp_path)
+
+    assert catalog.get_card("character_a/card_01").base_cost == -1
+
+
+def test_negative_base_cost_other_than_sentinel_is_rejected(tmp_path: Path) -> None:
+    document = card_document()
+    document["variants"] = []
+    document["cards"][0]["base_cost"] = -2
+    write_document(tmp_path, "character_a.json", document)
+
+    with pytest.raises(CatalogError, match="base_cost"):
+        CardCatalog.from_directory(tmp_path)
+
+
+def test_shipped_haide_mali_catalog_matches_reviewed_baseline() -> None:
+    catalog = CardCatalog.from_directory(Path(__file__).parents[1] / "data" / "cards")
+
+    assert catalog.summary.owners == 1
+    assert catalog.summary.cards == 7
+    cards = catalog.cards_for_owner("haide_mali")
+    assert [card.card_id for card in cards] == [f"haide_mali/card_0{index}" for index in range(1, 8)]
+
+    sword_rain = catalog.get_card("haide_mali/card_03")
+    assert sword_rain.name.zh_tw == "劍之雨"
+    assert sword_rain.card_type is CardType.ATTACK
+    assert sword_rain.base_cost == 1
+    assert sword_rain.tags == ("link",)
+
+    aurora = catalog.get_card("haide_mali/card_07")
+    assert aurora.base_cost == -1
+    assert aurora.target is TargetMode.NONE
+
+    light = catalog.get_card("haide_mali/card_05")
+    assert "縷光芒" in light.name.aliases

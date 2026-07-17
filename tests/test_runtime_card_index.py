@@ -62,10 +62,14 @@ def load_index(catalog: CardCatalog | None = None) -> RuntimeCardIndex:
 def test_index_precompiles_read_only_name_effect_and_variant_tables() -> None:
     index = load_index()
 
-    assert index.summary.cards == 4
-    assert index.summary.approved_cards == 0
+    # The card table is the union of reference candidates and the approved
+    # catalog. With all seven base cards reviewed, plus the sword-rain common
+    # flash and 20 epiphany branches, those 21 variants are catalog-approved
+    # while the remaining flash candidates stay pending.
+    assert index.summary.cards == 7
+    assert index.summary.approved_cards == 7
     assert index.summary.variants > 20
-    assert index.summary.approved_variants == 0
+    assert index.summary.approved_variants == 21
     assert [record.card_id for record in index.lookup_card_name("劍之雨")] == [
         "haide_mali/card_03"
     ]
@@ -78,7 +82,7 @@ def test_index_precompiles_read_only_name_effect_and_variant_tables() -> None:
         index.card_table["haide_mali/card_99"] = index.card_table["haide_mali/card_03"]  # type: ignore[index]
 
 
-def test_real_sample_becomes_observation_but_is_not_strategy_approved() -> None:
+def test_real_sword_rain_sample_reaches_strategy_ready_through_approved_catalog() -> None:
     index = load_index()
     manifest = load_sample_manifest(SAMPLE_MANIFEST)
     frame = cv2.imread(str(SAMPLE_MANIFEST.parent / manifest.image_path), cv2.IMREAD_COLOR)
@@ -108,8 +112,13 @@ def test_real_sample_becomes_observation_but_is_not_strategy_approved() -> None:
     assert observation.bbox.y + observation.bbox.height <= manifest.height
     assert observation.confidence > 0.9
     assert observation.to_dict()["card_id"] == "haide_mali/card_03"
-    assert resolution.status is ResolutionStatus.CARD_NOT_APPROVED
-    assert not resolution.decision_ready
+    # Base card and its common-flash variant are both reviewed into data/cards,
+    # so the real gameplay sample now clears the safety gate end to end.
+    assert resolution.status is ResolutionStatus.READY
+    assert resolution.decision_ready
+    assert resolution.materialized_card is not None
+    assert resolution.materialized_card.card_id == "haide_mali/card_03"
+    assert resolution.materialized_card.variant_ids == ("haide_mali/card_03/common_flash_draw_1",)
 
 
 def test_reviewed_card_and_variant_can_be_materialized_for_strategy() -> None:

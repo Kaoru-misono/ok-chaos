@@ -96,8 +96,7 @@ CurrentCardRecognitionTask
 | `ChaosTask` | 持续触发 | 基础页面状态机；默认关闭，每轮最多一个动作 |
 | `CurrentCardRecognitionTask` | 一次性 | 只读识别当前详情页并显示观察与策略准入结果 |
 | `CardCollectorTask` | 一次性 | 保存一帧脱敏画面、同帧 OCR 和 pending 清单 |
-| `AutoCardCollectorTask` | 一次性 | 在已验证列表/详情循环中采集海德玛丽基础详情 |
-| `AutoEpiphanyCollectorTask` | 一次性 | 在已验证循环中打开并采集灵光一闪总览 |
+| `AutoCardCollectorTask` | 一次性 | 在已验证列表/详情循环中逐卡位采集基础详情；右下角有灵光一闪按钮时进入总览一并采集后返回 |
 
 任务注册位于 `src/config.py`。不要把 ok-script 调用移动进 `src/chaos/`。
 
@@ -164,12 +163,42 @@ SHA-256：3954C514E8E612471EF400D32571510D4416C60CD7C33B1F0EB26C4255F9C70A
 - 识别器依赖 OCR 文字和局部视觉证据，不需要把整张 `frame.png` 放进运行时资产库。
 - STOVE 游戏以管理员权限运行时，ok-chaos 也必须管理员启动才能注入鼠标；WGC 捕获本身可以正常工作。
 
+## 已入库的正式目录
+
+`data/cards/characters/haide_mali.json` 已写入 7 张基础牌 + 21 个变体，经 2026-07-18 人工审核，
+覆盖身份、类别、费用、目标、特性标签和效果原文：
+
+- 7 张基础牌（card_01–card_07）。
+- 20 个专属灵光一闪分支（card_03–card_06 各 a–e，`kind=epiphany`）；epiphany 用 `effects_override`
+  整体替换基础效果，费用/类型/特性差异分别用 `cost_override`/`card_type_override`/`tags_add`/`tags_remove`。
+  card_06 分支 e 是“改变类型的灵光一闪”，仍为 `kind=epiphany` 但 `card_type_override=upgrade`。
+- 1 个剑之雨普通闪 `common_flash_draw_1`（`kind=common_flash`，叠加 `additional_effects`）。剑之雨普通闪
+  的其余 5 个候选仅有网页文本、无实机证据，保持 pending，未入库。
+- `effects`/`effects_override`/`additional_effects` 仍是占位：单个 `unsupported` 动作携带效果原文，
+  `trigger` 为占位值，机器可读的效果 DSL 留待下一轮。不要把 `trigger`/`actions` 当作已确认事实。
+- `card_07`（凝结极光）不可直接打出，`base_cost` 使用 sentinel `-1`（见 `schema.UNPLAYABLE_COST`），
+  区别于 `null`（动态费用）；`target` 记为 `none`。
+- 特性标签用英文键：`link`（連結）、`rest`（安息）、`unique`（唯一）、`quick`（快速）、`exhaust`/`exhaust_2`
+  （消滅）、`ultimate`（終極）、`retain`（保留）、`reclaim_3`（回收3）。
+
+**READY 真机路径已打通**：剑之雨普通闪的实机样本经"识别 → CardObservation → RuntimeCardResolution"
+产出 `READY` 与可用的 `MaterializedCard`（`decision_ready=true`），由
+`test_real_sword_rain_sample_reaches_strategy_ready_through_approved_catalog` 固定。基础牌页面仍正确返回
+"识别成功、策略不可用"（无闪光层）。
+
+### 待办：角色衍生牌
+
+`极光劍`（極光劍/aurora_sword）和 `解放极光`（解放極光）是海德玛丽的战斗内生成牌，详情页 OCR 已多次
+出现（如剑光/剑之雨/展开极光左侧的极光剑预览、凝结极光的解放极光形态），但没有干净的独立详情帧。
+按约定改到**战斗内采集**：等实战采到它们的详情画面再建立正式 `CardDefinition`，不要用碎片 OCR 硬造。
+
 ## 推荐的下一步
 
-1. 先实现人工审核流程，把海德玛丽基础牌的名称、类型、费用、目标和基础效果写入 `data/cards`。
-2. 审核剑之雨普通闪以及 20 个灵光一闪分支，逐项建立正式 `CardVariant`；不要批量自动批准。
-3. 用正式目录验证 `RuntimeCardResolution.READY` 的真机路径，同时保留未审核变体的拒绝测试。
-4. 扩展详情页观察：费用、类型图标、卡图感知哈希和更多拒识负样本。
+1. 补齐基础牌与变体的效果 DSL（`trigger`/机器可读 `actions`），替换当前的 `unsupported` 占位。这是让策略
+   真正能用 `MaterializedCard` 的前提。
+2. 补充剑之雨普通闪其余候选与其他三张牌的普通闪：需要实机样本佐证后才入库，网页文本候选保持 pending。
+3. 战斗内采集角色衍生牌（极光剑、解放极光）并入库。
+4. 扩展详情页观察：费用数字、类型图标、卡图感知哈希和更多拒识负样本。
 5. 再做战斗手牌定位与跨帧 `CardObservation` 跟踪。
 6. 最后才让策略读取 `decision_ready=true` 的 `MaterializedCard` 并产生动作。
 

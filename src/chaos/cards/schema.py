@@ -17,6 +17,11 @@ SCHEMA_VERSION = 1
 _ID_PART = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
 _PHASH = re.compile(r"^[0-9a-f]{16}$")
 
+# Sentinel base_cost for cards that cannot be played directly (e.g. transform or
+# passive-only cards showing a ⊘ glyph instead of a number). Distinct from null,
+# which means a dynamic/variable cost. Runtime current_cost stays non-negative.
+UNPLAYABLE_COST = -1
+
 
 def validate_id_part(value: str, field_name: str, *, allow_blank: bool = False) -> str:
     if not isinstance(value, str):
@@ -174,9 +179,14 @@ class CardDefinition:
         if not isinstance(self.card_type, CardType):
             object.__setattr__(self, "card_type", CardType(self.card_type))
         if self.base_cost is not None and (
-            isinstance(self.base_cost, bool) or not isinstance(self.base_cost, int) or self.base_cost < 0
+            isinstance(self.base_cost, bool)
+            or not isinstance(self.base_cost, int)
+            or (self.base_cost < 0 and self.base_cost != UNPLAYABLE_COST)
         ):
-            raise ValueError("base_cost must be a non-negative integer or null for dynamic cost")
+            raise ValueError(
+                f"base_cost must be a non-negative integer, null for dynamic cost, "
+                f"or {UNPLAYABLE_COST} for cards that cannot be played directly"
+            )
         if not isinstance(self.target, TargetMode):
             object.__setattr__(self, "target", TargetMode(self.target))
         if not isinstance(self.effects, tuple):

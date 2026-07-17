@@ -252,14 +252,14 @@ class AutoCardCollectionError(RuntimeError):
 
 
 class AutoCardCollectorTask(BaseTask):
-    """Safely traverse the verified Haide Mali card grid and collect details."""
+    """Traverse the verified Haide Mali card grid, collecting detail and epiphany."""
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.name = "自动采集海德玛丽卡牌详情"
+        self.name = "自动采集海德玛丽卡牌详情与灵光一闪"
         self.description = (
-            "仅在同时识别到起始卡牌和灵光一闪卡牌标题时遍历八个已验证卡位；"
-            "每次点击后验证详情、保存待审核样本并返回，任何异常立即停止。"
+            "仅在识别到卡牌列表时遍历八个已验证卡位：每张卡先保存详情样本；"
+            "右下角存在灵光一闪按钮时进入总览一并采集后返回。任何验证失败立即停止。"
         )
         self.default_config.update(
             {
@@ -275,37 +275,16 @@ class AutoCardCollectorTask(BaseTask):
         )
         language = str(self.config.get(COLLECT_LANGUAGE, "zh-TW"))
         game_version = _optional_text(self.config.get(COLLECT_GAME_VERSION)) or "unknown"
-        collected: list[Path] = []
+        detail_manifests: list[Path] = []
+        epiphany_manifests: list[Path] = []
+        epiphany_card_ids: set[str] = set()
+        no_button: list[str] = []
 
         for position, slot in enumerate(HAIDE_MALI_CARD_SLOTS, start=1):
-            list_frame, _, list_context = self._snapshot(position * 2 - 1)
-            if not is_character_card_list(list_context):
-                raise AutoCardCollectionError(
-                    f"采集第{position}个卡位前未确认卡牌列表，已停止且未点击"
-                )
-
-            self.info_set("采集进度", f"{position}/8 {slot.expected_name} 第{slot.copy_index}份")
-            self.log_info(f"采集卡位{position}: {slot.expected_name} copy={slot.copy_index}")
-            self.click_relative(slot.relative_x, slot.relative_y, after_sleep=1.2)
-
-            detail_frame, detail_boxes, detail_context = self._snapshot(position * 2)
-            difference = self._frame_difference(list_frame, detail_frame)
-            if (
-                difference < 3.0
-                or is_character_card_list(detail_context)
-                or not detail_contains_expected_name(detail_context, slot)
-            ):
-                diagnostic = writer.capture(
-                    detail_frame,
-                    detail_boxes,
-                    CaptureLabel(SampleScene.UNKNOWN, owner_id="haide_mali"),
-                    language=language,
-                    game_version=game_version,
-                )
-                raise AutoCardCollectionError(
-                    f"卡位{position}点击后详情验证失败(diff={difference:.2f})，"
-                    f"诊断样本: {diagnostic.resolve()}"
-                )
+            frame_id = position * 10
+            detail_frame, detail_boxes, detail_context = self._open_verified_detail(
+                slot, position, writer, language, game_version, frame_id
+            )
 
             manifest = writer.capture(
                 detail_frame,
@@ -318,136 +297,18 @@ class AutoCardCollectorTask(BaseTask):
                 language=language,
                 game_version=game_version,
             )
-            collected.append(manifest)
+            detail_manifests.append(manifest)
             self.info_set("最近样本", str(manifest.resolve()))
-
-            self.send_key("esc", after_sleep=1.0)
-
-        _, _, final_context = self._snapshot(99)
-        if not is_character_card_list(final_context):
-            raise AutoCardCollectionError("全部详情已采集，但最终未返回卡牌列表")
-        self.info_set("采集完成", f"{len(collected)}份详情样本")
-        self.log_info(f"海德玛丽卡牌详情自动采集完成: {len(collected)}份", notify=True)
-
-    def _snapshot(self, frame_id: int) -> tuple[object, tuple[object, ...], ScreenContext]:
-        frame = redact_bottom_right(self.frame.copy())
-        boxes = tuple(self.ocr(frame=frame))
-        context = ScreenContext.from_ocr(
-            boxes,
-            frame_id=frame_id,
-            captured_at=time.monotonic(),
-            width=int(frame.shape[1]),
-            height=int(frame.shape[0]),
-            min_confidence=0.15,
-        )
-        return frame, boxes, context
-
-    @staticmethod
-    def _frame_difference(before, after) -> float:
-        if before.shape != after.shape:
-            return float("inf")
-        return float(cv2.absdiff(before, after).mean())
-
-
-class AutoEpiphanyCollectorTask(AutoCardCollectorTask):
-    """Capture the epiphany preview of every eligible Haide Mali card."""
-
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        self.name = "自动采集海德玛丽灵光一闪"
-        self.description = (
-            "从已验证的卡牌列表逐张打开详情；仅点击右下角的灵光一闪按钮，"
-            "保存点击后的待审核画面，没有该按钮的卡牌会直接跳过。"
-        )
-
-    def run(self) -> None:
-        writer = CardSampleWriter(
-            Path(_optional_text(self.config.get(COLLECT_OUTPUT_FOLDER)) or "datasets/cards/inbox")
-        )
-        language = str(self.config.get(COLLECT_LANGUAGE, "zh-TW"))
-        game_version = _optional_text(self.config.get(COLLECT_GAME_VERSION)) or "unknown"
-        collected: list[Path] = []
-        collected_card_ids: set[str] = set()
-        skipped: list[str] = []
-
-        initial_frame, initial_boxes, initial_context = self._snapshot(1)
-        if is_epiphany_overview(initial_context):
-            matching_card_ids = {
-                slot.card_id
-                for slot in HAIDE_MALI_CARD_SLOTS
-                if detail_contains_expected_name(initial_context, slot)
-            }
-            if len(matching_card_ids) != 1:
-                diagnostic = writer.capture(
-                    initial_frame,
-                    initial_boxes,
-                    CaptureLabel(SampleScene.UNKNOWN, owner_id="haide_mali"),
-                    language=language,
-                    game_version=game_version,
-                )
-                raise AutoCardCollectionError(
-                    "当前是灵光一闪总览，但无法唯一确认卡牌，"
-                    f"诊断样本: {diagnostic.resolve()}"
-                )
-            initial_card_id = matching_card_ids.pop()
-            initial_slot = next(
-                slot for slot in HAIDE_MALI_CARD_SLOTS if slot.card_id == initial_card_id
-            )
-            manifest = writer.capture(
-                initial_frame,
-                initial_boxes,
-                CaptureLabel(
-                    SampleScene.EPIPHANY,
-                    owner_id="haide_mali",
-                    card_id=initial_card_id,
-                ),
-                language=language,
-                game_version=game_version,
-            )
-            collected.append(manifest)
-            collected_card_ids.add(initial_card_id)
-            self.info_set("最近样本", str(manifest.resolve()))
-            self.log_info(f"已接续保存当前{initial_slot.expected_name}灵光一闪总览")
-            self._return_to_card_list(initial_slot, 2)
-        elif not is_character_card_list(initial_context):
-            raise AutoCardCollectionError("启动时既不是卡牌列表也不是可识别的灵光一闪总览，未点击")
-
-        for position, slot in enumerate(HAIDE_MALI_CARD_SLOTS, start=1):
-            if slot.card_id in collected_card_ids:
-                continue
-            list_frame, _, list_context = self._snapshot(position * 10)
-            if not is_character_card_list(list_context):
-                raise AutoCardCollectionError(
-                    f"检查第{position}个卡位前未确认卡牌列表，已停止且未点击"
-                )
-
-            self.info_set("采集进度", f"{position}/8 检查 {slot.expected_name}")
-            self.log_info(f"检查灵光一闪卡位{position}: {slot.expected_name}")
-            self.click_relative(slot.relative_x, slot.relative_y, after_sleep=1.2)
-
-            detail_frame, detail_boxes, detail_context = self._snapshot(position * 10 + 1)
-            difference = self._frame_difference(list_frame, detail_frame)
-            if (
-                difference < 3.0
-                or is_character_card_list(detail_context)
-                or not detail_contains_expected_name(detail_context, slot)
-            ):
-                diagnostic = writer.capture(
-                    detail_frame,
-                    detail_boxes,
-                    CaptureLabel(SampleScene.UNKNOWN, owner_id="haide_mali"),
-                    language=language,
-                    game_version=game_version,
-                )
-                raise AutoCardCollectionError(
-                    f"卡位{position}详情验证失败(diff={difference:.2f})，"
-                    f"诊断样本: {diagnostic.resolve()}"
-                )
 
             button = find_epiphany_button(detail_context)
             if button is None:
-                skipped.append(slot.expected_name)
-                self.log_info(f"{slot.expected_name}没有灵光一闪按钮，跳过")
+                if slot.copy_index == 1:
+                    no_button.append(slot.expected_name)
+                self.log_info(f"{slot.expected_name}没有灵光一闪按钮，返回列表")
+                self.send_key("esc", after_sleep=1.0)
+                continue
+            if slot.card_id in epiphany_card_ids:
+                self.log_info(f"{slot.expected_name}灵光一闪总览已采集过，返回列表")
                 self.send_key("esc", after_sleep=1.0)
                 continue
 
@@ -457,7 +318,7 @@ class AutoEpiphanyCollectorTask(AutoCardCollectorTask):
                 button_y / detail_context.height,
                 after_sleep=1.2,
             )
-            preview_frame, preview_boxes, preview_context = self._snapshot(position * 10 + 2)
+            preview_frame, preview_boxes, preview_context = self._snapshot(frame_id + 2)
             preview_difference = self._frame_difference(detail_frame, preview_frame)
             if (
                 preview_difference < 3.0
@@ -488,21 +349,63 @@ class AutoEpiphanyCollectorTask(AutoCardCollectorTask):
                 language=language,
                 game_version=game_version,
             )
-            collected.append(manifest)
-            collected_card_ids.add(slot.card_id)
+            epiphany_manifests.append(manifest)
+            epiphany_card_ids.add(slot.card_id)
             self.info_set("最近样本", str(manifest.resolve()))
 
-            self._return_to_card_list(slot, position * 10 + 3)
+            self._return_to_card_list(slot, frame_id + 3)
 
         _, _, final_context = self._snapshot(999)
         if not is_character_card_list(final_context):
-            raise AutoCardCollectionError("灵光一闪采集结束，但最终未返回卡牌列表")
-        self.info_set("采集完成", f"{len(collected)}份灵光一闪，跳过{len(skipped)}个卡位")
+            raise AutoCardCollectionError("全部卡位已采集，但最终未返回卡牌列表")
+        self.info_set(
+            "采集完成",
+            f"{len(detail_manifests)}份详情，{len(epiphany_manifests)}份灵光一闪，"
+            f"无按钮: {', '.join(no_button) or '无'}",
+        )
         self.log_info(
-            f"海德玛丽灵光一闪采集完成: {len(collected)}份，"
-            f"无按钮卡位: {', '.join(skipped) or '无'}",
+            f"海德玛丽卡牌自动采集完成: 详情{len(detail_manifests)}份，"
+            f"灵光一闪{len(epiphany_manifests)}份，无按钮卡位: {', '.join(no_button) or '无'}",
             notify=True,
         )
+
+    def _open_verified_detail(
+        self,
+        slot,
+        position: int,
+        writer: CardSampleWriter,
+        language: str,
+        game_version: str,
+        frame_id: int,
+    ) -> tuple[object, tuple[object, ...], ScreenContext]:
+        list_frame, _, list_context = self._snapshot(frame_id)
+        if not is_character_card_list(list_context):
+            raise AutoCardCollectionError(
+                f"采集第{position}个卡位前未确认卡牌列表，已停止且未点击"
+            )
+        self.info_set("采集进度", f"{position}/8 {slot.expected_name} 第{slot.copy_index}份")
+        self.log_info(f"采集卡位{position}: {slot.expected_name} copy={slot.copy_index}")
+        self.click_relative(slot.relative_x, slot.relative_y, after_sleep=1.2)
+
+        detail_frame, detail_boxes, detail_context = self._snapshot(frame_id + 1)
+        difference = self._frame_difference(list_frame, detail_frame)
+        if (
+            difference < 3.0
+            or is_character_card_list(detail_context)
+            or not detail_contains_expected_name(detail_context, slot)
+        ):
+            diagnostic = writer.capture(
+                detail_frame,
+                detail_boxes,
+                CaptureLabel(SampleScene.UNKNOWN, owner_id="haide_mali"),
+                language=language,
+                game_version=game_version,
+            )
+            raise AutoCardCollectionError(
+                f"卡位{position}点击后详情验证失败(diff={difference:.2f})，"
+                f"诊断样本: {diagnostic.resolve()}"
+            )
+        return detail_frame, detail_boxes, detail_context
 
     def _return_to_card_list(self, slot, frame_id: int) -> None:
         self.send_key("esc", after_sleep=1.0)
@@ -519,6 +422,25 @@ class AutoEpiphanyCollectorTask(AutoCardCollectorTask):
             raise AutoCardCollectionError(
                 f"{slot.expected_name}详情关闭后未返回卡牌列表，已停止"
             )
+
+    def _snapshot(self, frame_id: int) -> tuple[object, tuple[object, ...], ScreenContext]:
+        frame = redact_bottom_right(self.frame.copy())
+        boxes = tuple(self.ocr(frame=frame))
+        context = ScreenContext.from_ocr(
+            boxes,
+            frame_id=frame_id,
+            captured_at=time.monotonic(),
+            width=int(frame.shape[1]),
+            height=int(frame.shape[0]),
+            min_confidence=0.15,
+        )
+        return frame, boxes, context
+
+    @staticmethod
+    def _frame_difference(before, after) -> float:
+        if before.shape != after.shape:
+            return float("inf")
+        return float(cv2.absdiff(before, after).mean())
 
 
 class _TaskActionExecutor:
