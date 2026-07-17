@@ -35,12 +35,21 @@ class TargetMode(StrEnum):
 
 class Trigger(StrEnum):
     ON_PLAY = "on_play"
-    ON_DRAW = "on_draw"
-    ON_DISCARD = "on_discard"
+    ON_DRAW = "on_draw"  # 感應: activates when this card is drawn
+    ON_DISCARD = "on_discard"  # 安息/被丟棄時
     ON_EXHAUST = "on_exhaust"
-    TURN_START = "turn_start"
+    ON_MOVE_TO_GRAVE = "on_move_to_grave"  # 移動至墳墓時
+    TURN_START = "turn_start"  # 回合開始時
     TURN_END = "turn_end"
     PASSIVE = "passive"
+
+
+class CardZone(StrEnum):
+    HAND = "hand"
+    DRAW_PILE = "draw_pile"
+    DISCARD_PILE = "discard_pile"
+    GRAVE = "grave"
+    USED_PILE = "used_pile"
 
 
 class EffectOp(StrEnum):

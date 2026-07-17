@@ -23,9 +23,22 @@
           "trigger": "on_play",
           "actions": [
             {
-              "op": "unsupported",
+              "op": "damage",
               "params": {
-                "raw_text": "造成139%的傷害。持續1回合極光劍傷害量+30%"
+                "base_value": 139
+              }
+            },
+            {
+              "op": "apply_status",
+              "params": {
+                "status": "damage_up",
+                "subject": {
+                  "card": "aurora_sword"
+                },
+                "base_value": 30,
+                "duration": {
+                  "turns": 1
+                }
               }
             }
           ]
@@ -48,9 +61,9 @@
           "trigger": "on_play",
           "actions": [
             {
-              "op": "unsupported",
+              "op": "shield",
               "params": {
-                "raw_text": "獲得126%護盾"
+                "base_value": 126
               }
             }
           ]
@@ -73,9 +86,22 @@
           "trigger": "on_play",
           "actions": [
             {
-              "op": "unsupported",
+              "op": "damage",
               "params": {
-                "raw_text": "造成101%×2的傷害。感應：生成1張極光劍"
+                "base_value": 101,
+                "hits": 2
+              }
+            }
+          ]
+        },
+        {
+          "trigger": "on_draw",
+          "actions": [
+            {
+              "op": "create_card",
+              "params": {
+                "card": "aurora_sword",
+                "count": 1
               }
             }
           ]
@@ -101,9 +127,21 @@
           "trigger": "on_play",
           "actions": [
             {
-              "op": "unsupported",
+              "op": "draw",
               "params": {
-                "raw_text": "抽取3。本回合內將這些卡牌連結"
+                "count": 3
+              }
+            },
+            {
+              "op": "apply_status",
+              "params": {
+                "status": "link",
+                "subject": {
+                  "cards": "drawn_this_effect"
+                },
+                "duration": {
+                  "scope": "this_turn"
+                }
               }
             }
           ]
@@ -132,9 +170,15 @@
           "trigger": "on_play",
           "actions": [
             {
+              "op": "damage",
+              "params": {
+                "base_value": 151
+              }
+            },
+            {
               "op": "unsupported",
               "params": {
-                "raw_text": "造成151%的傷害。依發動前手牌的連結卡牌數量，傷害量+120%"
+                "raw_text": "依發動前手牌的連結卡牌數量，傷害量+120%"
               }
             }
           ]
@@ -160,9 +204,23 @@
           "trigger": "on_play",
           "actions": [
             {
-              "op": "unsupported",
+              "op": "create_card",
               "params": {
-                "raw_text": "生成2張極光劍。持續1回合極光劍的傷害量+50%"
+                "card": "aurora_sword",
+                "count": 2
+              }
+            },
+            {
+              "op": "apply_status",
+              "params": {
+                "status": "damage_up",
+                "subject": {
+                  "card": "aurora_sword"
+                },
+                "base_value": 50,
+                "duration": {
+                  "turns": 1
+                }
               }
             }
           ]
@@ -185,12 +243,19 @@
       "target": "none",
       "effects": [
         {
-          "trigger": "passive",
+          "trigger": "on_move_to_grave",
           "actions": [
+            {
+              "op": "gain_resource",
+              "params": {
+                "resource": "aurora_light",
+                "value": 1
+              }
+            },
             {
               "op": "unsupported",
               "params": {
-                "raw_text": "移動至墳墓時：極光之光1；極光之光為3時變更為解放極光"
+                "raw_text": "極光之光為3時變更為解放極光"
               }
             }
           ]
@@ -214,9 +279,9 @@
           "trigger": "on_play",
           "actions": [
             {
-              "op": "unsupported",
+              "op": "draw",
               "params": {
-                "raw_text": "抽取1"
+                "count": 1
               }
             }
           ]
@@ -228,21 +293,34 @@
       "base_card_id": "haide_mali/card_03",
       "kind": "epiphany",
       "branch": "a",
+      "tags_add": [
+        "rest"
+      ],
       "effects_override": [
         {
           "trigger": "on_play",
           "actions": [
             {
-              "op": "unsupported",
+              "op": "damage",
               "params": {
-                "raw_text": "造成101%×2的傷害。感應：生成2張極光劍"
+                "base_value": 101,
+                "hits": 2
+              }
+            }
+          ]
+        },
+        {
+          "trigger": "on_draw",
+          "actions": [
+            {
+              "op": "create_card",
+              "params": {
+                "card": "aurora_sword",
+                "count": 2
               }
             }
           ]
         }
-      ],
-      "tags_add": [
-        "rest"
       ]
     },
     {
@@ -251,24 +329,42 @@
       "kind": "epiphany",
       "branch": "b",
       "cost_override": 2,
-      "effects_override": [
-        {
-          "trigger": "on_play",
-          "actions": [
-            {
-              "op": "unsupported",
-              "params": {
-                "raw_text": "造成227%的傷害。依發動前手牌的極光劍數量額外打擊1次。感應：生成1張極光劍"
-              }
-            }
-          ]
-        }
-      ],
       "tags_add": [
         "quick"
       ],
       "tags_remove": [
         "link"
+      ],
+      "effects_override": [
+        {
+          "trigger": "on_play",
+          "actions": [
+            {
+              "op": "damage",
+              "params": {
+                "base_value": 227
+              }
+            },
+            {
+              "op": "unsupported",
+              "params": {
+                "raw_text": "依發動前手牌的極光劍數量額外打擊1次"
+              }
+            }
+          ]
+        },
+        {
+          "trigger": "on_draw",
+          "actions": [
+            {
+              "op": "create_card",
+              "params": {
+                "card": "aurora_sword",
+                "count": 1
+              }
+            }
+          ]
+        }
       ]
     },
     {
@@ -277,6 +373,9 @@
       "kind": "epiphany",
       "branch": "c",
       "card_type_override": "skill",
+      "tags_remove": [
+        "link"
+      ],
       "effects_override": [
         {
           "trigger": "on_play",
@@ -289,9 +388,6 @@
             }
           ]
         }
-      ],
-      "tags_remove": [
-        "link"
       ]
     },
     {
@@ -300,21 +396,31 @@
       "kind": "epiphany",
       "branch": "d",
       "card_type_override": "skill",
+      "tags_remove": [
+        "link"
+      ],
       "effects_override": [
         {
           "trigger": "on_play",
           "actions": [
             {
-              "op": "unsupported",
+              "op": "create_card",
               "params": {
-                "raw_text": "生成2張極光劍，並賦予該卡牌回收"
+                "card": "aurora_sword",
+                "count": 2
+              }
+            },
+            {
+              "op": "apply_status",
+              "params": {
+                "status": "reclaim",
+                "subject": {
+                  "cards": "created_this_effect"
+                }
               }
             }
           ]
         }
-      ],
-      "tags_remove": [
-        "link"
       ]
     },
     {
@@ -323,19 +429,6 @@
       "kind": "epiphany",
       "branch": "e",
       "cost_override": 3,
-      "effects_override": [
-        {
-          "trigger": "on_play",
-          "actions": [
-            {
-              "op": "unsupported",
-              "params": {
-                "raw_text": "對所有敵人造成630%的傷害。若手牌中有解放極光，則將其消滅，並依墳墓中極光劍的數量，傷害量+100%"
-              }
-            }
-          ]
-        }
-      ],
       "tags_add": [
         "exhaust",
         "retain",
@@ -344,6 +437,26 @@
       ],
       "tags_remove": [
         "link"
+      ],
+      "effects_override": [
+        {
+          "trigger": "on_play",
+          "actions": [
+            {
+              "op": "damage",
+              "params": {
+                "base_value": 630,
+                "target": "all_enemies"
+              }
+            },
+            {
+              "op": "unsupported",
+              "params": {
+                "raw_text": "若手牌中有解放極光，則將其消滅，並依墳墓中極光劍的數量，傷害量+100%"
+              }
+            }
+          ]
+        }
       ]
     },
     {
@@ -351,21 +464,33 @@
       "base_card_id": "haide_mali/card_04",
       "kind": "epiphany",
       "branch": "a",
+      "tags_add": [
+        "link"
+      ],
       "effects_override": [
         {
           "trigger": "on_play",
           "actions": [
             {
-              "op": "unsupported",
+              "op": "draw",
               "params": {
-                "raw_text": "抽取3。本回合內將這些卡牌連結"
+                "count": 3
+              }
+            },
+            {
+              "op": "apply_status",
+              "params": {
+                "status": "link",
+                "subject": {
+                  "cards": "drawn_this_effect"
+                },
+                "duration": {
+                  "scope": "this_turn"
+                }
               }
             }
           ]
         }
-      ],
-      "tags_add": [
-        "link"
       ]
     },
     {
@@ -378,9 +503,15 @@
           "trigger": "on_play",
           "actions": [
             {
+              "op": "draw",
+              "params": {
+                "count": 3
+              }
+            },
+            {
               "op": "unsupported",
               "params": {
-                "raw_text": "抽取3。手牌中費用為1以下的卡牌在本回合內連結"
+                "raw_text": "手牌中費用為1以下的卡牌在本回合內連結"
               }
             }
           ]
@@ -393,24 +524,30 @@
       "kind": "epiphany",
       "branch": "c",
       "cost_override": 0,
-      "effects_override": [
-        {
-          "trigger": "on_play",
-          "actions": [
-            {
-              "op": "unsupported",
-              "params": {
-                "raw_text": "抽取1。手牌中的安息卡牌在本回合內連結"
-              }
-            }
-          ]
-        }
-      ],
       "tags_add": [
         "quick"
       ],
       "tags_remove": [
         "rest"
+      ],
+      "effects_override": [
+        {
+          "trigger": "on_play",
+          "actions": [
+            {
+              "op": "draw",
+              "params": {
+                "count": 1
+              }
+            },
+            {
+              "op": "unsupported",
+              "params": {
+                "raw_text": "手牌中的安息卡牌在本回合內連結"
+              }
+            }
+          ]
+        }
       ]
     },
     {
@@ -419,6 +556,12 @@
       "kind": "epiphany",
       "branch": "d",
       "cost_override": 0,
+      "tags_add": [
+        "exhaust_2"
+      ],
+      "tags_remove": [
+        "rest"
+      ],
       "effects_override": [
         {
           "trigger": "on_play",
@@ -431,12 +574,6 @@
             }
           ]
         }
-      ],
-      "tags_add": [
-        "exhaust_2"
-      ],
-      "tags_remove": [
-        "rest"
       ]
     },
     {
@@ -444,6 +581,12 @@
       "base_card_id": "haide_mali/card_04",
       "kind": "epiphany",
       "branch": "e",
+      "tags_add": [
+        "quick"
+      ],
+      "tags_remove": [
+        "rest"
+      ],
       "effects_override": [
         {
           "trigger": "on_play",
@@ -456,12 +599,6 @@
             }
           ]
         }
-      ],
-      "tags_add": [
-        "quick"
-      ],
-      "tags_remove": [
-        "rest"
       ]
     },
     {
@@ -474,9 +611,15 @@
           "trigger": "on_play",
           "actions": [
             {
+              "op": "damage",
+              "params": {
+                "base_value": 227
+              }
+            },
+            {
               "op": "unsupported",
               "params": {
-                "raw_text": "造成227%的傷害。依發動前手牌的連結卡牌數量，傷害量+180%"
+                "raw_text": "依發動前手牌的連結卡牌數量，傷害量+180%"
               }
             }
           ]
@@ -489,21 +632,27 @@
       "kind": "epiphany",
       "branch": "b",
       "cost_override": 2,
+      "tags_add": [
+        "quick"
+      ],
       "effects_override": [
         {
           "trigger": "on_play",
           "actions": [
             {
+              "op": "damage",
+              "params": {
+                "base_value": 378
+              }
+            },
+            {
               "op": "unsupported",
               "params": {
-                "raw_text": "造成378%的傷害。若發動前手牌的連結卡牌為3張以上，造成3倍傷害"
+                "raw_text": "若發動前手牌的連結卡牌為3張以上，造成3倍傷害"
               }
             }
           ]
         }
-      ],
-      "tags_add": [
-        "quick"
       ]
     },
     {
@@ -511,21 +660,27 @@
       "base_card_id": "haide_mali/card_05",
       "kind": "epiphany",
       "branch": "c",
+      "tags_add": [
+        "rest"
+      ],
       "effects_override": [
         {
           "trigger": "on_play",
           "actions": [
             {
+              "op": "damage",
+              "params": {
+                "base_value": 126
+              }
+            },
+            {
               "op": "unsupported",
               "params": {
-                "raw_text": "造成126%的傷害。若此卡牌在手牌或墳墓，連結卡牌的傷害量+80%"
+                "raw_text": "若此卡牌在手牌或墳墓，連結卡牌的傷害量+80%"
               }
             }
           ]
         }
-      ],
-      "tags_add": [
-        "rest"
       ]
     },
     {
@@ -535,6 +690,9 @@
       "branch": "d",
       "card_type_override": "skill",
       "cost_override": 3,
+      "tags_add": [
+        "exhaust"
+      ],
       "effects_override": [
         {
           "trigger": "on_play",
@@ -547,9 +705,6 @@
             }
           ]
         }
-      ],
-      "tags_add": [
-        "exhaust"
       ]
     },
     {
@@ -558,21 +713,34 @@
       "kind": "epiphany",
       "branch": "e",
       "cost_override": 2,
+      "tags_add": [
+        "unique"
+      ],
       "effects_override": [
         {
           "trigger": "on_play",
           "actions": [
             {
-              "op": "unsupported",
+              "op": "damage",
               "params": {
-                "raw_text": "直接使用時，造成441%×2的傷害。被丟棄時，對所有敵人造成378%的傷害"
+                "base_value": 441,
+                "hits": 2
+              }
+            }
+          ]
+        },
+        {
+          "trigger": "on_discard",
+          "actions": [
+            {
+              "op": "damage",
+              "params": {
+                "base_value": 378,
+                "target": "all_enemies"
               }
             }
           ]
         }
-      ],
-      "tags_add": [
-        "unique"
       ]
     },
     {
@@ -580,21 +748,35 @@
       "base_card_id": "haide_mali/card_06",
       "kind": "epiphany",
       "branch": "a",
+      "tags_add": [
+        "link"
+      ],
       "effects_override": [
         {
           "trigger": "on_play",
           "actions": [
             {
-              "op": "unsupported",
+              "op": "create_card",
               "params": {
-                "raw_text": "生成2張極光劍。持續1回合極光劍的傷害量+70%"
+                "card": "aurora_sword",
+                "count": 2
+              }
+            },
+            {
+              "op": "apply_status",
+              "params": {
+                "status": "damage_up",
+                "subject": {
+                  "card": "aurora_sword"
+                },
+                "base_value": 70,
+                "duration": {
+                  "turns": 1
+                }
               }
             }
           ]
         }
-      ],
-      "tags_add": [
-        "link"
       ]
     },
     {
@@ -607,9 +789,16 @@
           "trigger": "on_play",
           "actions": [
             {
+              "op": "create_card",
+              "params": {
+                "card": "aurora_sword",
+                "count": 2
+              }
+            },
+            {
               "op": "unsupported",
               "params": {
-                "raw_text": "生成2張極光劍。接下來的2次極光劍傷害量+200%"
+                "raw_text": "接下來的2次極光劍傷害量+200%"
               }
             }
           ]
@@ -621,6 +810,12 @@
       "base_card_id": "haide_mali/card_06",
       "kind": "epiphany",
       "branch": "c",
+      "tags_add": [
+        "link"
+      ],
+      "tags_remove": [
+        "rest"
+      ],
       "effects_override": [
         {
           "trigger": "on_play",
@@ -633,12 +828,6 @@
             }
           ]
         }
-      ],
-      "tags_add": [
-        "link"
-      ],
-      "tags_remove": [
-        "rest"
       ]
     },
     {
@@ -646,21 +835,23 @@
       "base_card_id": "haide_mali/card_06",
       "kind": "epiphany",
       "branch": "d",
+      "tags_add": [
+        "link"
+      ],
       "effects_override": [
         {
           "trigger": "on_play",
           "actions": [
             {
-              "op": "unsupported",
+              "op": "create_card",
               "params": {
-                "raw_text": "在棄牌堆中生成6張極光劍"
+                "card": "aurora_sword",
+                "count": 6,
+                "zone": "discard_pile"
               }
             }
           ]
         }
-      ],
-      "tags_add": [
-        "link"
       ]
     },
     {
@@ -669,21 +860,28 @@
       "kind": "epiphany",
       "branch": "e",
       "card_type_override": "upgrade",
+      "tags_add": [
+        "unique"
+      ],
       "effects_override": [
         {
-          "trigger": "on_play",
+          "trigger": "turn_start",
           "actions": [
+            {
+              "op": "create_card",
+              "params": {
+                "card": "aurora_sword",
+                "count": 2
+              }
+            },
             {
               "op": "unsupported",
               "params": {
-                "raw_text": "回合開始時生成2張極光劍。極光劍傷害量+50%"
+                "raw_text": "極光劍傷害量+50%"
               }
             }
           ]
         }
-      ],
-      "tags_add": [
-        "unique"
       ]
     }
   ]

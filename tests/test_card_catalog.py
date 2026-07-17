@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from src.chaos.cards.catalog import CardCatalog, CatalogError
-from src.chaos.cards.enums import CardType, EffectOp, TargetMode
+from src.chaos.cards.enums import CardType, EffectOp, TargetMode, Trigger
 
 
 def card_document(*, owner: str = "character_a", slot: int = 1) -> dict:
@@ -268,3 +268,46 @@ def test_shipped_haide_mali_catalog_matches_reviewed_baseline() -> None:
 
     light = catalog.get_card("haide_mali/card_05")
     assert "縷光芒" in light.name.aliases
+
+
+def test_shipped_haide_mali_effects_are_structured_where_unambiguous() -> None:
+    catalog = CardCatalog.from_directory(Path(__file__).parents[1] / "data" / "cards")
+
+    # 剑之雨: 101%×2 on play, plus a 感應 (on-draw) aurora-sword generation.
+    sword_rain = catalog.get_card("haide_mali/card_03")
+    on_play, on_draw = sword_rain.effects
+    assert on_play.trigger is Trigger.ON_PLAY
+    damage = on_play.actions[0]
+    assert damage.op is EffectOp.DAMAGE
+    assert damage.params["base_value"] == 101
+    assert damage.params["hits"] == 2
+    assert on_draw.trigger is Trigger.ON_DRAW
+    assert on_draw.actions[0].op is EffectOp.CREATE_CARD
+
+    # 凝结极光 fires on moving to grave and gains the aurora-light resource.
+    aurora = catalog.get_card("haide_mali/card_07")
+    assert aurora.effects[0].trigger is Trigger.ON_MOVE_TO_GRAVE
+    assert aurora.effects[0].actions[0].op is EffectOp.GAIN_RESOURCE
+
+
+def test_sword_rain_common_flash_layers_draw_onto_base_damage() -> None:
+    catalog = CardCatalog.from_directory(Path(__file__).parents[1] / "data" / "cards")
+
+    materialized = catalog.materialize(
+        "haide_mali/card_03", "haide_mali/card_03/common_flash_draw_1"
+    )
+
+    ops = [action.op for effect in materialized.effects for action in effect.actions]
+    assert EffectOp.DAMAGE in ops
+    assert EffectOp.DRAW in ops
+
+
+def test_ambiguous_effects_stay_unsupported_pending_review() -> None:
+    catalog = CardCatalog.from_directory(Path(__file__).parents[1] / "data" / "cards")
+
+    # 一缕光芒's dynamic "+120% per link card" is preserved verbatim, not guessed.
+    light = catalog.get_card("haide_mali/card_05")
+    actions = [action for effect in light.effects for action in effect.actions]
+    unsupported = [action for action in actions if action.op is EffectOp.UNSUPPORTED]
+    assert len(unsupported) == 1
+    assert "連結卡牌數量" in unsupported[0].params["raw_text"]

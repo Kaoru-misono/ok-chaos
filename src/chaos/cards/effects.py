@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from types import MappingProxyType
 from typing import Any
 
-from src.chaos.cards.enums import EffectOp, Trigger
+from src.chaos.cards.enums import CardZone, EffectOp, TargetMode, Trigger
 
 type JsonScalar = str | int | float | bool | None
 type JsonValue = JsonScalar | list[JsonValue] | dict[str, JsonValue]
@@ -18,6 +19,93 @@ def _require_positive_integer(params: MappingProxyType[str, JsonValue], key: str
     value = params.get(key)
     if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
         raise ValueError(f"{op.value} requires positive integer parameter {key!r}")
+
+
+def _optional_positive_integer(params: MappingProxyType[str, JsonValue], key: str, op: EffectOp) -> None:
+    if key not in params:
+        return
+    value = params[key]
+    if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+        raise ValueError(f"{op.value} parameter {key!r} must be a positive integer")
+
+
+def _require_nonempty_text(params: MappingProxyType[str, JsonValue], key: str, op: EffectOp) -> None:
+    value = params.get(key)
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"{op.value} requires non-empty text parameter {key!r}")
+
+
+def _optional_enum(params: MappingProxyType[str, JsonValue], key: str, enum: type, op: EffectOp) -> None:
+    if key not in params:
+        return
+    try:
+        enum(params[key])
+    except ValueError as exception:
+        raise ValueError(f"{op.value} parameter {key!r} is not a valid {enum.__name__}") from exception
+
+
+_OpValidator = Callable[[MappingProxyType[str, JsonValue], EffectOp], None]
+_OP_VALIDATORS: dict[EffectOp, _OpValidator] = {}
+
+
+def _validates(*ops: EffectOp) -> Callable[[_OpValidator], _OpValidator]:
+    """Register a parameter validator for one or more ops.
+
+    Keeps each op's parameter contract self-contained: adding a formalized op
+    means adding a validator, not extending a dispatch chain.
+    """
+
+    def register(validator: _OpValidator) -> _OpValidator:
+        for op in ops:
+            _OP_VALIDATORS[op] = validator
+        return validator
+
+    return register
+
+
+@_validates(EffectOp.DRAW, EffectOp.DISCARD, EffectOp.REPEAT)
+def _validate_count(params: MappingProxyType[str, JsonValue], op: EffectOp) -> None:
+    _require_positive_integer(params, "count", op)
+
+
+@_validates(EffectOp.UNSUPPORTED)
+def _validate_unsupported(params: MappingProxyType[str, JsonValue], op: EffectOp) -> None:
+    _require_nonempty_text(params, "raw_text", op)
+
+
+@_validates(EffectOp.DAMAGE)
+def _validate_damage(params: MappingProxyType[str, JsonValue], op: EffectOp) -> None:
+    # base_value is the in-game percentage magnitude (139 == 139%).
+    _require_positive_integer(params, "base_value", op)
+    _optional_positive_integer(params, "hits", op)
+    _optional_enum(params, "target", TargetMode, op)
+
+
+@_validates(EffectOp.SHIELD)
+def _validate_shield(params: MappingProxyType[str, JsonValue], op: EffectOp) -> None:
+    _require_positive_integer(params, "base_value", op)
+    _optional_enum(params, "target", TargetMode, op)
+
+
+@_validates(EffectOp.CREATE_CARD)
+def _validate_create_card(params: MappingProxyType[str, JsonValue], op: EffectOp) -> None:
+    _require_nonempty_text(params, "card", op)
+    _require_positive_integer(params, "count", op)
+    _optional_enum(params, "zone", CardZone, op)
+
+
+@_validates(EffectOp.APPLY_STATUS)
+def _validate_apply_status(params: MappingProxyType[str, JsonValue], op: EffectOp) -> None:
+    _require_nonempty_text(params, "status", op)
+    _optional_positive_integer(params, "base_value", op)
+
+
+@_validates(EffectOp.GAIN_RESOURCE)
+def _validate_gain_resource(params: MappingProxyType[str, JsonValue], op: EffectOp) -> None:
+    _require_nonempty_text(params, "resource", op)
+    value = params.get("value")
+    if isinstance(value, bool) or not isinstance(value, int) or value == 0:
+        raise ValueError("gain_resource requires a non-zero integer value")
 
 
 @dataclass(frozen=True, slots=True)
@@ -37,12 +125,9 @@ class EffectAction:
         if not isinstance(self.params, MappingProxyType):
             object.__setattr__(self, "params", _freeze_mapping(dict(self.params)))
 
-        if self.op in {EffectOp.DRAW, EffectOp.DISCARD, EffectOp.REPEAT}:
-            _require_positive_integer(self.params, "count", self.op)
-        elif self.op is EffectOp.UNSUPPORTED:
-            raw_text = self.params.get("raw_text")
-            if not isinstance(raw_text, str) or not raw_text.strip():
-                raise ValueError("unsupported effect requires non-empty raw_text")
+        validator = _OP_VALIDATORS.get(self.op)
+        if validator is not None:
+            validator(self.params, self.op)
 
     @classmethod
     def from_dict(cls, value: dict[str, Any]) -> EffectAction:

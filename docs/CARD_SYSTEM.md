@@ -182,6 +182,26 @@ RuntimeCardResolution（审核目录准入与实体化结果）
 
 采样时不要把中立牌或怪物牌标成角色牌。它们即使偶然进入画面，也只用于验证系统能拒绝未知目标。
 
+## 效果 DSL 约定
+
+卡牌效果用 `EffectSpec`（触发 + 动作列表）表达，`EffectAction` 是单个机器可读操作。核心原则：
+**无歧义的部分结构化，语义模糊的部分保留为 `unsupported` + 原文，不从文本猜测**，等实战证据再补。
+
+- 数值约定：伤害/护盾/增益的数字用 `base_value`（整数即百分比，139 = 139%）；张数/次数用 `count`/`hits`；
+  持续时间用 `{"turns": N}` 或 `{"scope": "this_turn"}`；区域用 `CardZone`（hand/draw_pile/discard_pile/
+  grave/used_pile）；生成牌用稳定字符串 id（如 `aurora_sword`、`liberated_aurora`），即使该牌尚未定义。
+- 已正式化并带参数校验的操作：`damage {base_value, hits?, target?}`、`shield {base_value}`、`draw {count}`、
+  `create_card {card, count, zone?}`、`apply_status {status, subject, base_value?, duration?}`、
+  `gain_resource {resource, value}`。目标省略时继承卡牌 `target`。
+- 触发关键词映射：感應→`on_draw`、安息/被丟棄時→`on_discard`、移動至墳墓時→`on_move_to_grave`、
+  回合開始時→`turn_start`。一张卡按触发拆成多个 `EffectSpec`。
+- 关键词（連結/安息/唯一/回收/消滅/迅捷/終極/保留）只作为卡牌 `tags` 保留，其统一行为由**规则引擎的
+  关键词规则表**负责，不在每张卡的效果里重写。
+- 仍保留为 `unsupported` 的模糊类型：动态缩放（“依…數量…+X%”）、倍率（“造成3倍傷害”）、复杂条件链、
+  过滤选牌。这些必须在战斗中观察到确切数值/规则后才结构化。
+
+首批海德玛丽目录中，33 个动作已结构化、16 个模糊动作保留 pending。
+
 ## 下一里程碑
 
 首批真实样本就绪后实现：

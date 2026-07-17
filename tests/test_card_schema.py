@@ -113,6 +113,32 @@ def test_count_operations_reject_non_positive_counts() -> None:
         EffectAction(EffectOp.DRAW, {"count": 0})
 
 
+def test_damage_requires_positive_base_value_and_validates_optional_fields() -> None:
+    EffectAction(EffectOp.DAMAGE, {"base_value": 630, "hits": 1, "target": "all_enemies"})
+    with pytest.raises(ValueError, match="base_value"):
+        EffectAction(EffectOp.DAMAGE, {"hits": 2})
+    with pytest.raises(ValueError, match="hits"):
+        EffectAction(EffectOp.DAMAGE, {"base_value": 100, "hits": 0})
+    with pytest.raises(ValueError, match="TargetMode"):
+        EffectAction(EffectOp.DAMAGE, {"base_value": 100, "target": "everyone"})
+
+
+def test_create_card_requires_card_and_count_with_optional_zone() -> None:
+    EffectAction(EffectOp.CREATE_CARD, {"card": "aurora_sword", "count": 6, "zone": "discard_pile"})
+    with pytest.raises(ValueError, match="card"):
+        EffectAction(EffectOp.CREATE_CARD, {"count": 2})
+    with pytest.raises(ValueError, match="CardZone"):
+        EffectAction(EffectOp.CREATE_CARD, {"card": "aurora_sword", "count": 2, "zone": "sideboard"})
+
+
+def test_apply_status_and_gain_resource_validate_required_fields() -> None:
+    EffectAction(EffectOp.APPLY_STATUS, {"status": "damage_up", "subject": {"card": "aurora_sword"}, "base_value": 30})
+    with pytest.raises(ValueError, match="status"):
+        EffectAction(EffectOp.APPLY_STATUS, {"subject": {}})
+    with pytest.raises(ValueError, match="value"):
+        EffectAction(EffectOp.GAIN_RESOURCE, {"resource": "aurora_light", "value": 0})
+
+
 def test_recognized_observation_requires_a_catalog_identity() -> None:
     bbox = BoundingBox(10, 20, 120, 200)
     with pytest.raises(ValueError, match="requires card_id"):

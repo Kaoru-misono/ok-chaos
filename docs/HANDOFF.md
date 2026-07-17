@@ -174,8 +174,11 @@ SHA-256：3954C514E8E612471EF400D32571510D4416C60CD7C33B1F0EB26C4255F9C70A
   card_06 分支 e 是“改变类型的灵光一闪”，仍为 `kind=epiphany` 但 `card_type_override=upgrade`。
 - 1 个剑之雨普通闪 `common_flash_draw_1`（`kind=common_flash`，叠加 `additional_effects`）。剑之雨普通闪
   的其余 5 个候选仅有网页文本、无实机证据，保持 pending，未入库。
-- `effects`/`effects_override`/`additional_effects` 仍是占位：单个 `unsupported` 动作携带效果原文，
-  `trigger` 为占位值，机器可读的效果 DSL 留待下一轮。不要把 `trigger`/`actions` 当作已确认事实。
+- `effects`/`effects_override`/`additional_effects` 已做首轮 DSL 化：无歧义的动作已结构化（damage/shield/
+  draw/create_card/apply_status/gain_resource，带参数校验），并按真实触发（感應→on_draw、安息→on_discard、
+  移動至墳墓時→on_move_to_grave、回合開始時→turn_start）拆成多个 `EffectSpec`。**模糊部分**（动态缩放、
+  倍率、复杂条件、过滤选牌）仍保留为 `unsupported` + 原文，等实战证据再补。约定见 `docs/CARD_SYSTEM.md`
+  的“效果 DSL 约定”。目前 33 个动作已结构化、16 个 pending。
 - `card_07`（凝结极光）不可直接打出，`base_cost` 使用 sentinel `-1`（见 `schema.UNPLAYABLE_COST`），
   区别于 `null`（动态费用）；`target` 记为 `none`。
 - 特性标签用英文键：`link`（連結）、`rest`（安息）、`unique`（唯一）、`quick`（快速）、`exhaust`/`exhaust_2`
@@ -194,10 +197,11 @@ SHA-256：3954C514E8E612471EF400D32571510D4416C60CD7C33B1F0EB26C4255F9C70A
 
 ## 推荐的下一步
 
-1. 补齐基础牌与变体的效果 DSL（`trigger`/机器可读 `actions`），替换当前的 `unsupported` 占位。这是让策略
-   真正能用 `MaterializedCard` 的前提。
-2. 补充剑之雨普通闪其余候选与其他三张牌的普通闪：需要实机样本佐证后才入库，网页文本候选保持 pending。
-3. 战斗内采集角色衍生牌（极光剑、解放极光）并入库。
+1. 实现规则引擎的**关键词规则表**（連結/安息/唯一/回收/消滅/迅捷/終極/保留 的统一行为），并把当前
+   pending 的动态缩放/倍率/条件效果，用实战观察到的确切数值逐步结构化替换。
+2. 战斗内采集角色衍生牌（极光剑 `aurora_sword`、解放极光 `liberated_aurora`）并入库——它们已被卡牌效果
+   引用，但尚无正式定义。
+3. 补充剑之雨普通闪其余候选与其他三张牌的普通闪：需要实机样本佐证后才入库，网页文本候选保持 pending。
 4. 扩展详情页观察：费用数字、类型图标、卡图感知哈希和更多拒识负样本。
 5. 再做战斗手牌定位与跨帧 `CardObservation` 跟踪。
 6. 最后才让策略读取 `decision_ready=true` 的 `MaterializedCard` 并产生动作。
