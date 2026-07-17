@@ -21,6 +21,9 @@ datasets/cards/inbox/**
 !datasets/cards/inbox/2026-07-17/s20260717-114847-312497-2076b1a9/
 !datasets/cards/inbox/2026-07-17/s20260717-114847-312497-2076b1a9/frame.png
 !datasets/cards/inbox/2026-07-17/s20260717-114847-312497-2076b1a9/manifest.json
+!datasets/cards/inbox/2026-07-17/s20260717-165108-416089-0041bee0/
+!datasets/cards/inbox/2026-07-17/s20260717-165108-416089-0041bee0/frame.png
+!datasets/cards/inbox/2026-07-17/s20260717-165108-416089-0041bee0/manifest.json
 
 # Structured pending summaries are versioned; raw review artifacts remain local.
 datasets/cards/review/**

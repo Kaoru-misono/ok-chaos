@@ -63,11 +63,14 @@ class CaptureLabel:
         unknown = set(value) - {"scene", "owner_id", "card_id", "variant_ids"}
         if unknown:
             raise ValueError(f"unknown label fields: {sorted(unknown)}")
+        variant_ids = value.get("variant_ids", [])
+        if not isinstance(variant_ids, (list, tuple)):
+            raise ValueError("variant_ids must be an array of variant ids")
         return cls(
             scene=SampleScene(value.get("scene", SampleScene.UNKNOWN)),
             owner_id=value.get("owner_id"),
             card_id=value.get("card_id"),
-            variant_ids=tuple(value.get("variant_ids", [])),
+            variant_ids=tuple(variant_ids),
         )
 
 
@@ -121,9 +124,13 @@ class OcrEvidence:
     def from_dict(cls, value: dict[str, Any]) -> OcrEvidence:
         if not isinstance(value, dict):
             raise ValueError("OCR evidence must be an object")
-        unknown = set(value) - {"text", "x", "y", "width", "height", "confidence"}
+        fields = {"text", "x", "y", "width", "height", "confidence"}
+        unknown = set(value) - fields
         if unknown:
             raise ValueError(f"unknown OCR evidence fields: {sorted(unknown)}")
+        missing = fields - set(value)
+        if missing:
+            raise ValueError(f"missing OCR evidence fields: {sorted(missing)}")
         return cls(**value)
 
 
@@ -144,9 +151,11 @@ class CardSampleManifest:
 
     def __post_init__(self) -> None:
         validate_id_part(self.sample_id, "sample_id")
+        if not isinstance(self.captured_at, str):
+            raise ValueError("captured_at must be an ISO-8601 timestamp string")
         try:
             datetime.fromisoformat(self.captured_at.replace("Z", "+00:00"))
-        except (TypeError, ValueError) as exception:
+        except ValueError as exception:
             raise ValueError("captured_at must be an ISO-8601 timestamp") from exception
         if not isinstance(self.review_status, ReviewStatus):
             object.__setattr__(self, "review_status", ReviewStatus(self.review_status))
@@ -154,7 +163,11 @@ class CardSampleManifest:
             raise ValueError(f"sample schema_version must be {SCHEMA_VERSION}")
         if self.image_path != "frame.png":
             raise ValueError("sample image_path must be frame.png")
-        if len(self.image_sha256) != 64 or any(char not in "0123456789abcdef" for char in self.image_sha256):
+        if (
+            not isinstance(self.image_sha256, str)
+            or len(self.image_sha256) != 64
+            or any(char not in "0123456789abcdef" for char in self.image_sha256)
+        ):
             raise ValueError("image_sha256 must be a lowercase SHA-256 digest")
         if isinstance(self.width, bool) or not isinstance(self.width, int) or self.width <= 0:
             raise ValueError("sample width must be a positive integer")

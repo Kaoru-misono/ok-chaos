@@ -1,22 +1,26 @@
 from __future__ import annotations
 
+import json
 from dataclasses import replace
 from pathlib import Path
 
 import cv2
 import numpy as np
+import pytest
 
 from src.chaos.cards.collector import load_sample_manifest
 from src.chaos.cards.enums import RecognitionStatus, VariantKind
 from src.chaos.cards.flash_recognizer import (
     EpiphanySignature,
     FlashKnowledgeBase,
+    FlashRecognitionLayout,
     FlashRecognizer,
 )
 from src.chaos.model import ScreenContext, TextBox
 
 REPO_ROOT = Path(__file__).parents[1]
 REFERENCE_PATH = REPO_ROOT / "datasets" / "cards" / "reference" / "haide_mali" / "flash_layers.pending.json"
+EPIPHANY_PATH = REPO_ROOT / "datasets" / "cards" / "review" / "haide_mali" / "epiphany.pending.json"
 SAMPLE_MANIFEST = (
     REPO_ROOT
     / "datasets"
@@ -24,6 +28,15 @@ SAMPLE_MANIFEST = (
     / "inbox"
     / "2026-07-17"
     / "s20260717-114847-312497-2076b1a9"
+    / "manifest.json"
+)
+BASE_HERO_MANIFEST = (
+    REPO_ROOT
+    / "datasets"
+    / "cards"
+    / "inbox"
+    / "2026-07-17"
+    / "s20260717-165108-416089-0041bee0"
     / "manifest.json"
 )
 
@@ -186,6 +199,116 @@ def test_explicit_sections_compose_common_and_divine_layers() -> None:
         "haide_mali/card_03/common_flash_draw_1",
         "haide_mali/card_03/divine_flash_cost_minus_1",
     )
+
+
+def _load_base_hero_case() -> tuple[ScreenContext, object, FlashKnowledgeBase]:
+    manifest = load_sample_manifest(BASE_HERO_MANIFEST)
+    frame = cv2.imread(str(BASE_HERO_MANIFEST.parent / manifest.image_path), cv2.IMREAD_COLOR)
+    boxes = tuple(
+        TextBox(item.text, item.x, item.y, item.width, item.height, float(item.confidence))
+        for item in manifest.ocr
+    )
+    context = make_context(*boxes, width=manifest.width, height=manifest.height)
+    knowledge = FlashKnowledgeBase.from_reference_files(REFERENCE_PATH, EPIPHANY_PATH)
+    return context, frame, knowledge
+
+
+def test_real_base_hero_detail_does_not_claim_trait_gated_epiphany() -> None:
+    # card_04 branch a keeps the base effect text and only adds a [連結] trait
+    # tag, so the base detail page must stay base instead of matching epiphany_a.
+    context, frame, knowledge = _load_base_hero_case()
+
+    result = FlashRecognizer(knowledge).recognize(context, frame)
+
+    assert result.card_id == "haide_mali/card_04"
+    assert result.epiphany_variant_id is None
+    assert result.variant_ids == ()
+
+
+def test_link_trait_tag_unlocks_the_text_identical_epiphany_branch() -> None:
+    context, frame, knowledge = _load_base_hero_case()
+    tag_box = TextBox("[連結]", 1060, 862, 130, 70, 0.99)
+    context = make_context(*context.texts, tag_box, width=context.width, height=context.height)
+
+    result = FlashRecognizer(knowledge).recognize(context, frame)
+
+    assert result.card_id == "haide_mali/card_04"
+    assert result.epiphany_variant_id == "haide_mali/card_04/epiphany_a"
+    assert result.base_layer_kind is VariantKind.EPIPHANY
+
+
+def test_epiphany_signature_loads_required_trait_tags_from_pending_data() -> None:
+    knowledge = FlashKnowledgeBase.from_reference_files(REFERENCE_PATH, EPIPHANY_PATH)
+    signature = next(
+        item for item in knowledge.epiphanies if item.variant_id == "haide_mali/card_04/epiphany_a"
+    )
+
+    assert signature.required_trait_tags == ("連結",)
+
+
+def test_unknown_card_hint_is_not_forced_onto_first_catalog_card() -> None:
+    # card_01 is intentionally absent from card_aliases: a hint outside the
+    # knowledge base must yield "unknown", never the alphabetically-first card.
+    context = make_context(TextBox("完全不像卡名的文字", 555, 132, 102, 43, 0.99))
+
+    result = FlashRecognizer(load_knowledge()).recognize(
+        context,
+        card_id_hint="haide_mali/card_01",
+    )
+
+    assert result.status is RecognitionStatus.UNKNOWN
+    assert result.card_id is None
+    assert result.variant_ids == ()
+
+
+def test_known_card_hint_still_backstops_weak_name_ocr() -> None:
+    context = make_context(TextBox("鍺之丙", 555, 132, 102, 43, 0.4))
+
+    result = FlashRecognizer(load_knowledge()).recognize(
+        context,
+        card_id_hint="haide_mali/card_03",
+    )
+
+    assert result.card_id == "haide_mali/card_03"
+    assert result.card_confidence == pytest.approx(0.6)
+
+
+def test_bgra_frame_still_detects_gold_marker() -> None:
+    frame = np.zeros((720, 1280, 4), dtype=np.uint8)
+    frame[512:560, 565:607] = (0, 190, 255, 255)
+    context = make_context(
+        TextBox("劍之雨", 555, 132, 102, 43, 0.99),
+        TextBox("抽取1", 616, 524, 65, 29, 0.99),
+    )
+
+    result = FlashRecognizer(load_knowledge()).recognize(context, frame)
+
+    assert result.status is RecognitionStatus.RECOGNIZED
+    assert [match.effect_id for match in result.divine_effects] == ["draw_1"]
+
+
+def test_partial_recognition_layout_falls_back_to_default_card_name_search() -> None:
+    layout = FlashRecognitionLayout.from_dict(
+        {"ocr_search": {"left": 0.2, "top": 0.1, "right": 0.8, "bottom": 0.9}}
+    )
+
+    assert layout.ocr_search.left == 0.2
+    assert layout.card_name_search == FlashRecognitionLayout().card_name_search
+
+
+def test_reference_candidate_missing_effect_id_raises_value_error(tmp_path: Path) -> None:
+    reference = {
+        "card_aliases": {"haide_mali/card_03": ["劍之雨"]},
+        "effect_text_aliases": {},
+        "haide_mali_common_flash_candidates": [
+            {"card_id": "haide_mali/card_03", "candidates": [{"text_zh_cn": "抽取1"}]}
+        ],
+    }
+    path = tmp_path / "reference.json"
+    path.write_text(json.dumps(reference, ensure_ascii=False), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="effect_id"):
+        FlashKnowledgeBase.from_reference_files(path)
 
 
 def test_epiphany_and_divine_can_be_composed() -> None:

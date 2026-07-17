@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "sample_id": "s20260717-165108-416089-0041bee0",
+  "captured_at": "2026-07-17T16:51:08.416089Z",
+  "review_status": "pending",
+  "label": {
+    "scene": "card_detail"
+  },
+  "image": {
+    "path": "frame.png",
+    "sha256": "c3c857e2866c48c460a78c0b1aca41e297ad96e52f36399d17eb54f225edfd5d",
+    "width": 2560,
+    "height": 1440
+  },
+  "ocr": [
+    {
+      "text": "獨特卡牌",
+      "x": 285,
+      "y": 77,
+      "width": 171,
+      "height": 55,
+      "confidence": 0.999925
+    },
+    {
+      "text": "萬人的英雄",
+      "x": 1088,
+      "y": 270,
+      "width": 339,
+      "height": 71,
+      "confidence": 0.999909
+    },
+    {
+      "text": "安息",
+      "x": 1672,
+      "y": 249,
+      "width": 101,
+      "height": 61,
+      "confidence": 0.999996
+    },
+    {
+      "text": "技能",
+      "x": 1123,
+      "y": 336,
+      "width": 181,
+      "height": 66,
+      "confidence": 0.998407
+    },
+    {
+      "text": "此卡牌被丟棄時發動此卡牌",
+      "x": 1677,
+      "y": 331,
+      "width": 467,
+      "height": 42,
+      "confidence": 0.973079
+    },
+    {
+      "text": "此卡牌在本回合內不會從已使用卡堆中移動",
+      "x": 1677,
+      "y": 373,
+      "width": 734,
+      "height": 48,
+      "confidence": 0.997652
+    },
+    {
+      "text": "連結",
+      "x": 1672,
+      "y": 498,
+      "width": 104,
+      "height": 61,
+      "confidence": 0.981585
+    },
+    {
+      "text": "此卡牌在直接使用時，丟棄手牌中所有其他",
+      "x": 1677,
+      "y": 577,
+      "width": 736,
+      "height": 45,
+      "confidence": 0.997536
+    },
+    {
+      "text": "的連結卡牌",
+      "x": 1677,
+      "y": 625,
+      "width": 200,
+      "height": 45,
+      "confidence": 0.993537
+    },
+    {
+      "text": "抽取",
+      "x": 1672,
+      "y": 746,
+      "width": 104,
+      "height": 59,
+      "confidence": 0.999907
+    },
+    {
+      "text": "令",
+      "x": 960,
+      "y": 842,
+      "width": 21,
+      "height": 42,
+      "confidence": 0.530501
+    },
+    {
+      "text": "安息]",
+      "x": 1232,
+      "y": 862,
+      "width": 147,
+      "height": 73,
+      "confidence": 0.784477
+    },
+    {
+      "text": "將抽牌堆的卡牌移動至手牌",
+      "x": 1677,
+      "y": 826,
+      "width": 467,
+      "height": 42,
+      "confidence": 0.999893
+    },
+    {
+      "text": "本回合內將這些卡牌連",
+      "x": 1045,
+      "y": 987,
+      "width": 499,
+      "height": 61,
+      "confidence": 0.987918
+    },
+    {
+      "text": "抽取3",
+      "x": 1229,
+      "y": 929,
+      "width": 139,
+      "height": 58,
+      "confidence": 0.999524
+    },
+    {
+      "text": "靈光一閃",
+      "x": 1749,
+      "y": 953,
+      "width": 187,
+      "height": 56,
+      "confidence": 0.9998
+    },
+    {
+      "text": "結",
+      "x": 1267,
+      "y": 1051,
+      "width": 58,
+      "height": 55,
+      "confidence": 0.999996
+    },
+    {
+      "text": "當觸發靈光一閃，可賦予卡牌新的效果",
+      "x": 1680,
+      "y": 1027,
+      "width": 656,
+      "height": 42,
+      "confidence": 0.993512
+    },
+    {
+      "text": "關閉",
+      "x": 1256,
+      "y": 1305,
+      "width": 109,
+      "height": 69,
+      "confidence": 0.99966
+    },
+    {
+      "text": "靈光一閃",
+      "x": 2128,
+      "y": 1308,
+      "width": 197,
+      "height": 63,
+      "confidence": 0.999633
+    }
+  ],
+  "environment": {
+    "language": "zh-TW",
+    "game_version": "unknown"
+  }
+}

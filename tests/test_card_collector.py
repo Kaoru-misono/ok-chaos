@@ -100,3 +100,70 @@ def test_manifest_parser_rejects_unreviewed_extra_fields(tmp_path: Path) -> None
 
     with pytest.raises(ValueError, match="unknown sample fields"):
         load_sample_manifest(manifest_path, verify_image=False)
+
+
+def _write_mutated_manifest(tmp_path: Path, mutate) -> Path:
+    frame = np.zeros((10, 10, 3), dtype=np.uint8)
+    manifest_path = CardSampleWriter(tmp_path).capture(
+        frame,
+        [FakeBox("示例卡")],
+        CaptureLabel(SampleScene.UNKNOWN),
+    )
+    value = json.loads(manifest_path.read_text(encoding="utf-8"))
+    mutate(value)
+    manifest_path.write_text(json.dumps(value, ensure_ascii=False), encoding="utf-8")
+    return manifest_path
+
+
+def test_manifest_with_numeric_captured_at_fails_with_clear_error(tmp_path: Path) -> None:
+    def mutate(value: dict) -> None:
+        value["captured_at"] = 20260717
+
+    manifest_path = _write_mutated_manifest(tmp_path, mutate)
+
+    with pytest.raises(ValueError, match="ISO-8601"):
+        load_sample_manifest(manifest_path, verify_image=False)
+
+
+def test_manifest_ocr_entry_missing_field_fails_with_clear_error(tmp_path: Path) -> None:
+    def mutate(value: dict) -> None:
+        del value["ocr"][0]["confidence"]
+
+    manifest_path = _write_mutated_manifest(tmp_path, mutate)
+
+    with pytest.raises(ValueError, match="missing OCR evidence fields"):
+        load_sample_manifest(manifest_path, verify_image=False)
+
+
+def test_manifest_with_string_variant_ids_fails_with_clear_error(tmp_path: Path) -> None:
+    def mutate(value: dict) -> None:
+        value["label"]["variant_ids"] = "character_a/card_01/epiphany_a"
+
+    manifest_path = _write_mutated_manifest(tmp_path, mutate)
+
+    with pytest.raises(ValueError, match="variant_ids must be an array"):
+        load_sample_manifest(manifest_path, verify_image=False)
+
+
+def test_manifest_with_non_string_sha256_fails_with_clear_error(tmp_path: Path) -> None:
+    def mutate(value: dict) -> None:
+        value["image"]["sha256"] = 123456
+
+    manifest_path = _write_mutated_manifest(tmp_path, mutate)
+
+    with pytest.raises(ValueError, match="SHA-256"):
+        load_sample_manifest(manifest_path, verify_image=False)
+
+
+def test_validate_samples_lists_bad_manifest_instead_of_crashing(tmp_path: Path, capsys) -> None:
+    from src.chaos.cards.cli import _validate_samples
+
+    def mutate(value: dict) -> None:
+        del value["ocr"][0]["confidence"]
+
+    _write_mutated_manifest(tmp_path, mutate)
+
+    assert _validate_samples(str(tmp_path)) == 1
+    output = capsys.readouterr().out
+    assert "样本校验失败" in output
+    assert "missing OCR evidence fields" in output

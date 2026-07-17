@@ -42,12 +42,18 @@ class RelativeRegion:
     def from_dict(cls, value: dict[str, Any]) -> RelativeRegion:
         if not isinstance(value, dict):
             raise ValueError("relative region must be an object")
-        return cls(
-            left=float(value["left"]),
-            top=float(value["top"]),
-            right=float(value["right"]),
-            bottom=float(value["bottom"]),
-        )
+        missing = {"left", "top", "right", "bottom"} - set(value)
+        if missing:
+            raise ValueError(f"relative region is missing fields: {sorted(missing)}")
+        try:
+            return cls(
+                left=float(value["left"]),
+                top=float(value["top"]),
+                right=float(value["right"]),
+                bottom=float(value["bottom"]),
+            )
+        except TypeError as exception:
+            raise ValueError("relative region coordinates must be numeric") from exception
 
     def contains(self, box: TextBox, width: int, height: int) -> bool:
         center_x, center_y = box.center
@@ -102,7 +108,17 @@ class FlashRecognitionLayout:
                     },
                 )
             ),
-            card_name_search=RelativeRegion.from_dict(value["card_name_search"]),
+            card_name_search=RelativeRegion.from_dict(
+                value.get(
+                    "card_name_search",
+                    {
+                        "left": defaults.card_name_search.left,
+                        "top": defaults.card_name_search.top,
+                        "right": defaults.card_name_search.right,
+                        "bottom": defaults.card_name_search.bottom,
+                    },
+                )
+            ),
             card_half_width=float(value.get("card_half_width", defaults.card_half_width)),
             effect_top_offset_from_name_bottom=float(
                 value.get("effect_top_offset_from_name_bottom", defaults.effect_top_offset_from_name_bottom)
@@ -161,6 +177,10 @@ class EpiphanySignature:
     base_card_id: str
     aliases: tuple[str, ...]
     evidence_status: str = "pending"
+    # Trait tags (e.g. "連結") that must appear as standalone card-face tags before
+    # this variant may match. Required when the branch effect text equals the base
+    # card text and only the added trait distinguishes them.
+    required_trait_tags: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         variant_id = validate_qualified_id(self.variant_id, "variant_id", parts=3)
@@ -173,6 +193,7 @@ class EpiphanySignature:
             raise ValueError("epiphany evidence_status cannot be blank")
         object.__setattr__(self, "variant_id", variant_id)
         object.__setattr__(self, "base_card_id", base_card_id)
+        object.__setattr__(self, "required_trait_tags", _unique_strings(self.required_trait_tags))
 
 
 @dataclass(frozen=True, slots=True)
@@ -202,14 +223,15 @@ class FlashKnowledgeBase:
             if recommended := card.get("recommended_candidate"):
                 records.append(recommended)
             records.extend(card.get("conflicts", []))
+            card_id = _require_field(card, "card_id", "common flash candidate group")
             for record in records:
-                effect_id = record["effect_id"]
+                effect_id = _require_field(record, "effect_id", "common flash candidate")
                 aliases = _unique_strings((record.get("text_zh_cn"), *alias_map.get(effect_id, [])))
                 definition = FlashEffectDefinition(
                     effect_id=effect_id,
                     kind=VariantKind.COMMON_FLASH,
                     aliases=aliases,
-                    card_ids=(card["card_id"],),
+                    card_ids=(card_id,),
                     evidence_status=str(record.get("evidence_level", card.get("pool_status", "pending"))),
                 )
                 effects[(definition.kind, definition.effect_id, definition.card_ids)] = definition
@@ -242,10 +264,16 @@ class FlashKnowledgeBase:
                 if raw_text:
                     epiphanies.append(
                         EpiphanySignature(
-                            variant_id=variant["variant_id"],
-                            base_card_id=variant["base_card_id"],
+                            variant_id=_require_field(variant, "variant_id", "epiphany variant"),
+                            base_card_id=_require_field(variant, "base_card_id", "epiphany variant"),
                             aliases=(raw_text,),
                             evidence_status=evidence_status,
+                            required_trait_tags=_unique_strings(
+                                (
+                                    *variant.get("required_trait_tags_zh_tw", []),
+                                    *variant.get("required_trait_tags_zh_cn", []),
+                                )
+                            ),
                         )
                     )
 
@@ -483,6 +511,7 @@ class FlashRecognizer:
         if not candidates:
             candidates = context.texts
         definitions = self.knowledge.cards
+        hinted: tuple[CardNameDefinition, ...] = ()
         if card_id_hint is not None:
             checked_hint = validate_qualified_id(card_id_hint, "card_id")
             hinted = tuple(definition for definition in definitions if definition.card_id == checked_hint)
@@ -499,8 +528,8 @@ class FlashRecognizer:
                         best = _CardMatch(definition, box, confidence)
         if best is not None:
             return best
-        if card_id_hint is not None and definitions and candidates:
-            return _CardMatch(definitions[0], candidates[0], 0.6)
+        if hinted and candidates:
+            return _CardMatch(hinted[0], candidates[0], 0.6)
         return None
 
     def _detail_card_bounds(self, context: ScreenContext, name_box: TextBox) -> TextBounds:
@@ -666,12 +695,22 @@ class FlashRecognizer:
                 for chunk in chunks:
                     score = _text_similarity(alias, chunk.text)
                     if score >= 0.84 and score > best_score:
+                        if signature.required_trait_tags and not _trait_tags_present(
+                            chunks,
+                            signature.required_trait_tags,
+                            effect_chunk=chunk,
+                        ):
+                            continue
                         best_variant = signature.variant_id
                         best_score = score
         return best_variant, best_score
 
     def _divine_marker_score(self, frame: Any | None, bounds: TextBounds) -> float:
-        if frame is None or not hasattr(frame, "shape") or len(frame.shape) < 2:
+        # The gold marker is a color cue: grayscale frames carry no evidence, and
+        # WGC captures may arrive as BGRA instead of BGR.
+        if frame is None or not hasattr(frame, "shape") or len(frame.shape) != 3:
+            return 0.0
+        if frame.shape[2] not in (3, 4):
             return 0.0
         import cv2
         import numpy as np
@@ -688,6 +727,8 @@ class FlashRecognizer:
         if x2 <= x1 or y2 <= y1:
             return 0.0
         region = frame[y1:y2, x1:x2]
+        if region.shape[2] == 4:
+            region = cv2.cvtColor(region, cv2.COLOR_BGRA2BGR)
         hsv = cv2.cvtColor(region, cv2.COLOR_BGR2HSV)
         mask = (
             (hsv[:, :, 0] >= marker.hue_min)
@@ -702,6 +743,44 @@ class FlashRecognizer:
         ratio_score = float(mask.mean()) / 0.04
         area_score = largest_area / max(float(height * height * 0.12), 1.0)
         return min(1.0, max(ratio_score, area_score))
+
+
+_TRAIT_BRACKETS = "[]【】"
+
+
+def _trait_tags_present(
+    chunks: tuple[_EvidenceChunk, ...],
+    traits: tuple[str, ...],
+    *,
+    effect_chunk: _EvidenceChunk,
+) -> bool:
+    """Check that every trait renders as a standalone card-face tag like [連結].
+
+    A tag chunk must equal the trait text after normalization and be either
+    bracketed or positioned above the matched effect text, so that a line-wrap
+    fragment of the effect sentence itself can never count as a tag.
+    """
+
+    effect_top = effect_chunk.bounds.y
+    for trait in traits:
+        normalized_trait = normalize_flash_text(trait)
+        for chunk in chunks:
+            if chunk is effect_chunk or chunk.normalized_text != normalized_trait:
+                continue
+            bracketed = any(char in chunk.text for char in _TRAIT_BRACKETS)
+            bounds = chunk.bounds
+            above_effect = bounds.y + bounds.height / 2 < effect_top
+            if bracketed or above_effect:
+                break
+        else:
+            return False
+    return True
+
+
+def _require_field(mapping: Any, key: str, context: str) -> Any:
+    if not isinstance(mapping, dict) or key not in mapping:
+        raise ValueError(f"{context} is missing required field '{key}'")
+    return mapping[key]
 
 
 def _unique_strings(values: Iterable[object]) -> tuple[str, ...]:

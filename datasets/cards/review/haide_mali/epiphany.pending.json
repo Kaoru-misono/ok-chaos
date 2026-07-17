@@ -68,7 +68,10 @@
       "base_cost": 1,
       "card_type": "skill",
       "keywords": ["link", "rest"],
-      "raw_effect_text_zh_tw": "抽取3。本回合內將這些卡牌連結。"
+      "raw_effect_text_zh_tw": "抽取3。本回合內將這些卡牌連結。",
+      "effect_text_matches_base_card": true,
+      "required_trait_tags_zh_tw": ["連結"],
+      "trait_evidence_note": "2026-07-17 实机核对：分支 a 效果文本与基础卡面一致，唯一可见差异是卡面特性标签多出[連結]；基础版仅[安息]。见 inbox 样本 s20260717-165108-416089-0041bee0。"
     },
     {
       "variant_id": "haide_mali/card_04/epiphany_b",

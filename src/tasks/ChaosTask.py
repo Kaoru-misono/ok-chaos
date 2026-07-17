@@ -534,6 +534,9 @@ class _TaskActionExecutor:
                 return False
             return bool(self._task.click_box(box.native, after_sleep=action.after_delay))
         if action.kind is ActionKind.CLICK_RELATIVE:
+            # TODO(page-automation): Action 携带的是 0-1 归一化坐标，这里必须改用
+            # self._task.click_relative()；click() 会把 0.x 当成绝对像素点到 (0,0)。
+            # 恢复页面状态机开发前先修复并补适配层测试，当前 ChaosTask 默认关闭。
             return bool(self._task.click(action.x, action.y, after_sleep=action.after_delay))
         if action.kind is ActionKind.PRESS_KEY:
             return bool(self._task.send_key(action.key, after_sleep=action.after_delay))
