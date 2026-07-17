@@ -1,0 +1,673 @@
+{
+  "schema_version": 1,
+  "review_status": "pending",
+  "retrieved_at": "2026-07-17",
+  "scope": {
+    "owner_id": "haide_mali",
+    "owner_name_zh_cn": "海德玛丽",
+    "character_class": "ranger",
+    "web_references_are_gameplay_samples": false,
+    "excludes": [
+      "neutral_card_definitions",
+      "monster_card_definitions"
+    ]
+  },
+  "terminology": {
+    "common_flash": [
+      "普通闪",
+      "中立闪",
+      "通用闪"
+    ],
+    "epiphany": [
+      "专属闪",
+      "灵光一闪"
+    ],
+    "divine_flash": [
+      "神闪",
+      "神光一闪",
+      "神之灵光一闪",
+      "物主之闪光"
+    ]
+  },
+  "card_aliases": {
+    "haide_mali/card_03": [
+      "剑雨",
+      "剑之雨",
+      "劍雨",
+      "劍之雨",
+      "Sword Rain"
+    ],
+    "haide_mali/card_04": [
+      "万人的英雄",
+      "萬人的英雄",
+      "万众英雄",
+      "萬眾英雄",
+      "Hero to All"
+    ],
+    "haide_mali/card_05": [
+      "一缕光芒",
+      "一縷光芒",
+      "缕光芒",
+      "縷光芒",
+      "Thread of Light"
+    ],
+    "haide_mali/card_06": [
+      "展开极光",
+      "展開極光",
+      "Effulgent Expansion"
+    ]
+  },
+  "effect_text_aliases": {
+    "resolve_one_turn_2": [
+      "持续1回合获得决心2",
+      "1回合内决心2"
+    ],
+    "resolve_one_turn_3": [
+      "持续1回合获得决心3",
+      "1回合内决心3"
+    ],
+    "draw_1": [
+      "抽取1",
+      "抽取1张",
+      "抽1"
+    ],
+    "gain_ap_1": [
+      "获得1点AP",
+      "行动点1",
+      "获得AP1"
+    ],
+    "target_weaken_1": [
+      "目标削弱1",
+      "对目标赋予削弱1"
+    ],
+    "target_mark_1": [
+      "目标标记1",
+      "对目标赋予标记1"
+    ],
+    "target_agony_2": [
+      "目标痛苦2",
+      "对目标赋予痛苦2"
+    ],
+    "target_action_count_plus_2": [
+      "目标行动次数增加2",
+      "对方行动次数增加2"
+    ],
+    "all_enemies_weaken_2": [
+      "所有敌人削弱2",
+      "对所有敌人赋予削弱2"
+    ],
+    "all_enemies_mark_2": [
+      "所有敌人标记2",
+      "对所有敌人赋予标记2"
+    ],
+    "all_enemies_agony_2": [
+      "所有敌人痛苦2",
+      "对所有敌人赋予痛苦2"
+    ],
+    "all_enemies_action_count_plus_2": [
+      "所有敌人行动次数增加2"
+    ],
+    "random_ally_coordinated_attack": [
+      "己方随机对敌方发动合击",
+      "随机友军对目标发动协同攻击"
+    ],
+    "cost_minus_1": [
+      "此卡牌费用减少1",
+      "此卡费用减少1"
+    ],
+    "always_attack_weakness": [
+      "必定触发弱点攻击",
+      "必定弱点攻击"
+    ],
+    "target_vulnerable_2": [
+      "目标脆弱2",
+      "对目标赋予脆弱2"
+    ],
+    "damage_amount_plus_30_percent": [
+      "此卡牌伤害总量提升30%",
+      "此卡牌伤害量增加30%"
+    ],
+    "tenacity_damage_plus_100_percent": [
+      "此卡牌韧性伤害提升100%",
+      "此卡牌韧性伤害增加100%"
+    ],
+    "target_agony_4": [
+      "目标痛苦4",
+      "对目标赋予痛苦4"
+    ],
+    "healing_amount_plus_30_percent": [
+      "此卡牌治愈量增加30%",
+      "此卡牌治疗量增加30%"
+    ],
+    "shield_amount_plus_30_percent": [
+      "此卡牌护盾量增加30%"
+    ],
+    "morale_1_and_resolve_1": [
+      "士气1决心1",
+      "获得士气1决心1"
+    ],
+    "draw_1_card_of_this_unit": [
+      "抽取1张自身卡牌",
+      "自身卡牌抽取1"
+    ],
+    "apply_initiation_to_this_card": [
+      "赋予此卡牌开战",
+      "此卡牌获得开战"
+    ],
+    "weakness_attack_decrease_fortitude_this_turn": [
+      "弱点攻击使韧性本回合降低2",
+      "弱点攻击使韧性本回合降低3",
+      "弱点攻击本回合韧性减少2",
+      "弱点攻击本回合韧性减少3"
+    ],
+    "apply_pulverize_and_impair_3_all_enemies": [
+      "赋予此卡牌粉碎对所有敌人造成损伤3",
+      "粉碎所有敌人损伤3"
+    ],
+    "apply_retain_to_this_card": [
+      "赋予此卡牌保留",
+      "此卡牌获得保留"
+    ],
+    "if_no_shield_shield_strength_plus_100_percent": [
+      "若无护盾护盾量增加100%",
+      "没有护盾时护盾量增加100%"
+    ],
+    "if_first_card_used_this_turn_draw_2": [
+      "每回合首次使用时抽取2",
+      "若为本回合首次使用的卡牌抽取2张"
+    ],
+    "if_hp_at_most_50_percent_heal_amount_plus_100_percent": [
+      "生命值低于或等于50%时治愈量增加100%",
+      "HP为50%以下治愈量增加100%"
+    ],
+    "turn_start_mark_2_random_enemy": [
+      "回合开始时对随机敌人标记2"
+    ],
+    "decrease_stress_3": [
+      "压力减少3"
+    ],
+    "harmonization_gain_2_ap_next_turn": [
+      "调节下一回合AP2",
+      "调和下一回合获得2点AP"
+    ],
+    "ego_skill_cost_minus_1_this_turn": [
+      "本回合自我意识技能费用减少1"
+    ],
+    "turn_start_change_cost_to_0_to_3": [
+      "回合开始时此卡牌费用变为0~3",
+      "回合开始时费用变为0至3"
+    ],
+    "move_2_exhaust_cards_from_discard_to_hand": [
+      "将弃牌堆中的2张消灭卡移至手牌",
+      "将弃牌堆2张消灭卡移动至手牌"
+    ],
+    "heal_amount_plus_100_percent_and_apply_finale": [
+      "治愈量增加100%并赋予此卡牌终极",
+      "治疗量增加100%并获得终极"
+    ],
+    "on_defeat_draw_3": [
+      "击杀抽取3",
+      "消灭抽取3"
+    ],
+    "apply_combo_to_this_card": [
+      "赋予此卡牌连击",
+      "此卡牌获得连击"
+    ],
+    "treat_as_common_and_draw_1_common_card": [
+      "视为共用卡牌抽取1张共用卡牌",
+      "视为通用卡牌抽取1张通用卡牌"
+    ]
+  },
+  "recognition_layout": {
+    "ocr_search": {
+      "left": 0.3,
+      "top": 0.08,
+      "right": 0.72,
+      "bottom": 0.9
+    },
+    "card_name_search": {
+      "left": 0.34,
+      "top": 0.1,
+      "right": 0.68,
+      "bottom": 0.31
+    },
+    "card_half_width": 0.15,
+    "effect_top_offset_from_name_bottom": 0.27,
+    "effect_bottom": 0.88,
+    "section_height": 0.42,
+    "section_horizontal_tolerance": 0.28,
+    "common_header_aliases": [
+      "通用闪光",
+      "中立闪",
+      "普通闪"
+    ],
+    "divine_header_aliases": [
+      "物主之闪光",
+      "神之灵光一闪",
+      "神光一闪",
+      "神闪"
+    ],
+    "divine_marker": {
+      "left_width_in_text_heights": 2.0,
+      "vertical_padding_in_text_heights": 0.33,
+      "hue_min": 8,
+      "hue_max": 35,
+      "saturation_min": 80,
+      "value_min": 120,
+      "score_threshold": 0.3
+    }
+  },
+  "composition_rules": {
+    "base_flash_layer": {
+      "variant_kinds": [
+        "common_flash",
+        "epiphany"
+      ],
+      "max_active": 1,
+      "reason": "专属灵光一闪与普通闪是同一次基础进化的两种结果"
+    },
+    "divine_overlay_layer": {
+      "variant_kind": "divine_flash",
+      "max_active": 1,
+      "can_stack_with": [
+        "base",
+        "common_flash",
+        "epiphany"
+      ],
+      "behavior": "保留当前卡牌效果，并额外添加神闪效果"
+    }
+  },
+  "evidence_levels": {
+    "visual_confirmed": "网页截图中可以直接读到，但仍未由当前客户端实机复核",
+    "current_community": "近期社区规则整理，多来源相符，仍为待审核",
+    "recommendation_only": "攻略只推荐某词条，不能据此推断完整候选池",
+    "historical": "旧版本资料，仅用于兼容旧存档和识别旧截图",
+    "conflicted": "来源或版本互相冲突，必须实机复核"
+  },
+  "sources": [
+    {
+      "source_id": "bwiki_heidemarie_2026_07_11",
+      "title": "海德玛丽",
+      "url": "https://wiki.biligame.com/czn/%E6%B5%B7%E5%BE%B7%E7%8E%9B%E4%B8%BD",
+      "source_type": "community_wiki_character_database",
+      "source_updated_at": "2026-07-11",
+      "notes": "用于交叉核对四张目标角色牌的简体卡名、类型与基础效果；页面未展示完整普通闪候选池。"
+    },
+    {
+      "source_id": "bwiki_flash_terms_2026_03_23",
+      "title": "闪光词条",
+      "url": "https://wiki.biligame.com/czn/%E9%97%AA%E5%85%89%E8%AF%8D%E6%9D%A1",
+      "source_type": "community_wiki",
+      "source_updated_at": "2026-03-23",
+      "notes": "可确认神闪是附加层、专属灵光一闪不再叠普通闪；其物主共享同一池的说法已被 4 月 28 日更新取代。"
+    },
+    {
+      "source_id": "bahamut_flash_rules_2026_05_23",
+      "title": "神之灵光一闪与中立闪深度详解（新神闪规则完成）",
+      "url": "https://forum.gamer.com.tw/C.php?bsn=80099&snA=4599",
+      "source_type": "community_research",
+      "source_updated_at": "2026-05-23",
+      "notes": "用于新神闪条件和游侠普通闪候选类别；网页受 Cloudflare 保护，内容来自搜索索引和可见摘要。"
+    },
+    {
+      "source_id": "bahamut_heidemarie_2026_06_12",
+      "title": "海德玛丽攻略",
+      "url": "https://forum.gamer.com.tw/C.php?bsn=80099&snA=4841",
+      "source_type": "community_guide",
+      "source_updated_at": "2026-06-12",
+      "notes": "用于海德玛丽单卡普通闪候选；未能直接看到的词条保持 community_text_only。"
+    },
+    {
+      "source_id": "prydwen_heidemarie_2026_07_02",
+      "title": "Heidemarie Best Build Guide",
+      "url": "https://www.prydwen.gg/chaos-zero-nightmare/characters/heidemarie",
+      "source_type": "community_database",
+      "source_updated_at": "2026-07-02",
+      "notes": "用于英文卡名、专属分支交叉核对和普通闪推荐，不用于推断完整普通闪池。"
+    },
+    {
+      "source_id": "game8_divine_2026_02_10",
+      "title": "How to Get Divine Epiphany",
+      "url": "https://game8.co/games/Chaos-Zero-Nightmare/archives/560629",
+      "source_type": "community_database",
+      "source_updated_at": "2026-02-10",
+      "notes": "保存 4 月 28 日扩充前已有的基础神闪池；新效果是扩充而非替换，旧效果仍按当前候选处理。"
+    },
+    {
+      "source_id": "stove_update_2026_04_28",
+      "title": "Chaos Zero Nightmare update notice",
+      "url": "https://page.onstove.com/chaoszeronightmare/EN/view/13168282",
+      "source_type": "official_notice",
+      "source_updated_at": "2026-04-28",
+      "notes": "官方公告确认加入按物主区分的新神闪效果。"
+    },
+    {
+      "source_id": "reddit_official_slide_2026_04_28",
+      "title": "New Divine Epiphany Effects Added",
+      "url": "https://www.reddit.com/r/ChaosZeroNightmare/comments/1sy7os5/new_divine_epiphany_effects_added/",
+      "source_type": "community_repost_of_official_slide",
+      "source_updated_at": "2026-04-28",
+      "notes": "保存官方公告表格截图；评论称 Vytor 的降低韧性数值之后由 3 调整为 2，尚缺实机截图。"
+    },
+    {
+      "source_id": "3dm_heidemarie_2026_05_29",
+      "title": "卡厄思梦境海德玛丽介绍",
+      "url": "https://shouyou.3dmgame.com/gl/623438.html",
+      "source_type": "community_guide_with_game_ui_images",
+      "source_updated_at": "2026-05-29",
+      "notes": "图片可直接看到三种专属分支加神闪的组合，以及展开极光的普通闪候选栏。"
+    }
+  ],
+  "visual_references": [
+    {
+      "path": "haide_mali/visual/thread_of_light_unique_plus_divine.png",
+      "sha256": "6a38a515e3d7be19737ddd2c4ca29778e6544fe1a6ff34a953470356e3ba8fe2",
+      "bytes": 427042,
+      "source_id": "3dm_heidemarie_2026_05_29",
+      "source_image_url": "https://syimg.3dmgame.com/uploadimg/xiaz/2026/0529/1780038755190.png",
+      "demonstrates": [
+        "haide_mali/card_05 epiphany choices",
+        "epiphany plus divine_flash cost_minus_1"
+      ],
+      "review_status": "pending"
+    },
+    {
+      "path": "haide_mali/visual/hero_to_all_unique_plus_divine.png",
+      "sha256": "61b46ed3c21e5180ff64e8e4ee217c01fbd4c7732f5f10da582a1fcaf2cf004d",
+      "bytes": 475191,
+      "source_id": "3dm_heidemarie_2026_05_29",
+      "source_image_url": "https://syimg.3dmgame.com/uploadimg/xiaz/2026/0529/1780038755936.png",
+      "demonstrates": [
+        "haide_mali/card_04 epiphany choices",
+        "epiphany plus divine_flash gain_ap_1"
+      ],
+      "review_status": "pending"
+    },
+    {
+      "path": "haide_mali/visual/effulgent_expansion_flash_reference.png",
+      "sha256": "935821449c61de6200af6d7a2e2cc0cd546a368d8a2a2de105e02fd40c77ab60",
+      "bytes": 712979,
+      "source_id": "3dm_heidemarie_2026_05_29",
+      "source_image_url": "https://syimg.3dmgame.com/uploadimg/xiaz/2026/0529/1780038756742.png",
+      "demonstrates": [
+        "haide_mali/card_06 five epiphany choices",
+        "haide_mali/card_06 six visible common_flash candidates",
+        "epiphany plus divine_flash draw_1"
+      ],
+      "review_status": "pending"
+    },
+    {
+      "path": "haide_mali/visual/divine_epiphany_effects_2026-04-28.png",
+      "sha256": "a9d38954a7fa4e1441ffb7f82d5e95b3d17c537062cb65b937b7ded3ac0f6459",
+      "bytes": 134330,
+      "source_id": "reddit_official_slide_2026_04_28",
+      "source_image_url": "https://i.redd.it/nzm7pfrkqyxg1.png",
+      "demonstrates": [
+        "18 newly announced divinity-specific divine_flash effects"
+      ],
+      "review_status": "pending"
+    },
+    {
+      "path": "_shared/visual/common_plus_divine_detail.png",
+      "sha256": "9947534bd9327e2ba557d930c2fa4c2b87904e1a7cf2b51966d1572ce2fdde1c",
+      "bytes": 392629,
+      "source_id": "bwiki_flash_terms_2026_03_23",
+      "source_image_url": "https://patchwiki.biligame.com/images/czn/0/0f/8z6eoetw65j83a7ci5y3ynjchnm9mih.png",
+      "demonstrates": [
+        "separate owner_flash and common_flash sections on one character card"
+      ],
+      "review_status": "pending",
+      "scope_note": "只作闪光栏位视觉参考，不建立图中卡牌定义"
+    }
+  ],
+  "ranger_common_flash_categories": [
+    {
+      "eligibility": "reusable_attack_or_skill",
+      "candidate_effect_ids": [
+        "resolve_one_turn",
+        "draw_1_when_cost_at_least_1",
+        "weaken",
+        "mark",
+        "increase_enemy_action_count",
+        "agony",
+        "gain_ap_1_when_cost_at_least_2"
+      ],
+      "evidence_level": "current_community",
+      "source_ids": [
+        "bahamut_flash_rules_2026_05_23"
+      ]
+    },
+    {
+      "eligibility": "exhaust_card",
+      "candidate_effect_ids": [
+        "resolve_one_turn",
+        "weaken",
+        "mark",
+        "agony",
+        "gain_ap_1",
+        "gain_ap_next_turn"
+      ],
+      "evidence_level": "current_community",
+      "source_ids": [
+        "bahamut_flash_rules_2026_05_23"
+      ]
+    },
+    {
+      "eligibility": "upgrade_card",
+      "candidate_effect_ids": [
+        "resolve",
+        "agony_at_turn_start_or_once_per_turn",
+        "shield_percent_at_turn_end"
+      ],
+      "evidence_level": "current_community",
+      "source_ids": [
+        "bahamut_flash_rules_2026_05_23"
+      ]
+    }
+  ],
+  "haide_mali_common_flash_candidates": [
+    {
+      "card_id": "haide_mali/card_03",
+      "name_zh_cn": "剑雨",
+      "pool_status": "pending_community_text_only",
+      "candidates": [
+        {
+          "effect_id": "resolve_one_turn_2",
+          "text_zh_cn": "持续1回合，获得决心2"
+        },
+        {
+          "effect_id": "draw_1",
+          "text_zh_cn": "抽取1",
+          "gameplay_sample_ids": [
+            "s20260717-114847-312497-2076b1a9"
+          ],
+          "gameplay_evidence_status": "pending_human_review"
+        },
+        {
+          "effect_id": "target_weaken_1",
+          "text_zh_cn": "目标削弱1"
+        },
+        {
+          "effect_id": "target_mark_1",
+          "text_zh_cn": "目标标记1"
+        },
+        {
+          "effect_id": "target_agony_2",
+          "text_zh_cn": "目标痛苦2"
+        },
+        {
+          "effect_id": "target_action_count_plus_2",
+          "text_zh_cn": "目标行动次数增加2"
+        }
+      ],
+      "source_ids": [
+        "bahamut_heidemarie_2026_06_12"
+      ]
+    },
+    {
+      "card_id": "haide_mali/card_04",
+      "name_zh_cn": "万人的英雄",
+      "pool_status": "incomplete",
+      "recommended_candidate": {
+        "effect_id": "gain_ap_1",
+        "text_zh_cn": "获得1点AP",
+        "evidence_level": "recommendation_only"
+      },
+      "source_ids": [
+        "prydwen_heidemarie_2026_07_02"
+      ]
+    },
+    {
+      "card_id": "haide_mali/card_05",
+      "name_zh_cn": "一缕光芒",
+      "pool_status": "incomplete",
+      "recommended_candidate": {
+        "effect_id": "draw_1",
+        "text_zh_cn": "抽取1",
+        "evidence_level": "recommendation_only"
+      },
+      "source_ids": [
+        "prydwen_heidemarie_2026_07_02"
+      ]
+    },
+    {
+      "card_id": "haide_mali/card_06",
+      "name_zh_cn": "展开极光",
+      "pool_status": "pending_visual_reference",
+      "candidates": [
+        {
+          "effect_id": "resolve_one_turn_3",
+          "text_zh_cn": "持续1回合，获得决心3"
+        },
+        {
+          "effect_id": "draw_1",
+          "text_zh_cn": "抽取1"
+        },
+        {
+          "effect_id": "gain_ap_1",
+          "text_zh_cn": "获得1点AP"
+        },
+        {
+          "effect_id": "all_enemies_weaken_2",
+          "text_zh_cn": "所有敌人削弱2"
+        },
+        {
+          "effect_id": "all_enemies_mark_2",
+          "text_zh_cn": "所有敌人标记2"
+        },
+        {
+          "effect_id": "all_enemies_action_count_plus_2",
+          "text_zh_cn": "所有敌人行动次数增加2"
+        }
+      ],
+      "source_ids": [
+        "3dm_heidemarie_2026_05_29"
+      ],
+      "conflicts": [
+        {
+          "effect_id": "all_enemies_agony_2",
+          "text_zh_cn": "所有敌人痛苦2",
+          "reason": "巴哈攻略摘要包含此项，但 3DM 的较新卡牌截图未显示",
+          "evidence_level": "conflicted",
+          "source_ids": [
+            "bahamut_heidemarie_2026_06_12",
+            "3dm_heidemarie_2026_05_29"
+          ]
+        }
+      ]
+    }
+  ],
+  "legacy_divine_flash_pool": {
+    "status": "baseline_pre_expansion_expected_still_available_pending_confirmation",
+    "attack": [
+      "gain_ap_1",
+      "random_ally_coordinated_attack",
+      "cost_minus_1",
+      "always_attack_weakness",
+      "target_vulnerable_2",
+      "damage_amount_plus_30_percent",
+      "tenacity_damage_plus_100_percent",
+      "target_agony_4"
+    ],
+    "skill": [
+      "gain_ap_1",
+      "draw_1",
+      "random_ally_coordinated_attack",
+      "cost_minus_1",
+      "healing_amount_plus_30_percent",
+      "shield_amount_plus_30_percent"
+    ],
+    "upgrade": [
+      "morale_1_and_resolve_1",
+      "cost_minus_1"
+    ],
+    "source_ids": [
+      "game8_divine_2026_02_10",
+      "bwiki_flash_terms_2026_03_23"
+    ]
+  },
+  "new_divinity_specific_divine_flash_candidates": [
+    {
+      "divinity": "Vytor",
+      "effect_ids": [
+        "draw_1_card_of_this_unit",
+        "apply_initiation_to_this_card",
+        "weakness_attack_decrease_fortitude_this_turn"
+      ],
+      "version_conflict": {
+        "announcement_value": 3,
+        "current_community_value": 2,
+        "review_status": "pending_in_game_confirmation"
+      }
+    },
+    {
+      "divinity": "Diallos",
+      "effect_ids": [
+        "apply_pulverize_and_impair_3_all_enemies",
+        "apply_retain_to_this_card",
+        "if_no_shield_shield_strength_plus_100_percent"
+      ]
+    },
+    {
+      "divinity": "Sekred",
+      "effect_ids": [
+        "if_first_card_used_this_turn_draw_2",
+        "if_hp_at_most_50_percent_heal_amount_plus_100_percent",
+        "turn_start_mark_2_random_enemy"
+      ]
+    },
+    {
+      "divinity": "Kyrken",
+      "effect_ids": [
+        "decrease_stress_3",
+        "harmonization_gain_2_ap_next_turn",
+        "ego_skill_cost_minus_1_this_turn"
+      ]
+    },
+    {
+      "divinity": "Nihilum",
+      "effect_ids": [
+        "turn_start_change_cost_to_0_to_3",
+        "move_2_exhaust_cards_from_discard_to_hand",
+        "heal_amount_plus_100_percent_and_apply_finale"
+      ]
+    },
+    {
+      "divinity": "unknown_on_slide",
+      "likely_group": "Chaos Order",
+      "inference_status": "pending",
+      "effect_ids": [
+        "on_defeat_draw_3",
+        "apply_combo_to_this_card",
+        "treat_as_common_and_draw_1_common_card"
+      ]
+    }
+  ],
+  "remaining_capture_work": [
+    "当前客户端实机确认 Vytor 降低韧性数值为 2 还是 3",
+    "补齐万人的英雄和一缕光芒完整普通闪候选池",
+    "确认展开极光当前版本是否仍可出现所有敌人痛苦2",
+    "各取得至少一张普通闪加神闪、专属闪加神闪的 1280x720 zh-TW 实机详情画面",
+    "建立神闪图标和普通闪栏位的实机裁切样本，不使用网页图片训练"
+  ]
+}

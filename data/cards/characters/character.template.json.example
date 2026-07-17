@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "owner": {
+    "owner_id": "character_id",
+    "name": {
+      "zh_cn": "待填写角色名",
+      "zh_tw": "待填寫角色名"
+    }
+  },
+  "cards": [
+    {
+      "card_id": "character_id/card_01",
+      "slot": 1,
+      "name": {
+        "zh_cn": "待填写卡名",
+        "zh_tw": "待填寫卡名",
+        "aliases": []
+      },
+      "card_type": "attack",
+      "base_cost": 1,
+      "target": "single_enemy",
+      "effects": [
+        {
+          "trigger": "on_play",
+          "actions": [
+            {
+              "op": "unsupported",
+              "params": {
+                "raw_text": "等待人工结构化的原始效果"
+              }
+            }
+          ]
+        }
+      ],
+      "raw_effect_text": "等待人工核对的原始效果"
+    }
+  ],
+  "variants": [
+    {
+      "variant_id": "character_id/card_01/epiphany_a",
+      "base_card_id": "character_id/card_01",
+      "kind": "epiphany",
+      "branch": "a",
+      "cost_override": 0,
+      "additional_effects": []
+    }
+  ]
+}

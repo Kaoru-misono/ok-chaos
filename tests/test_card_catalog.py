@@ -1,0 +1,227 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import pytest
+
+from src.chaos.cards.catalog import CardCatalog, CatalogError
+from src.chaos.cards.enums import EffectOp
+
+
+def card_document(*, owner: str = "character_a", slot: int = 1) -> dict:
+    card_id = f"{owner}/card_01"
+    return {
+        "schema_version": 1,
+        "owner": {
+            "owner_id": owner,
+            "name": {"zh_cn": "示例角色", "zh_tw": "示例角色"},
+        },
+        "cards": [
+            {
+                "card_id": card_id,
+                "slot": slot,
+                "name": {"zh_cn": "示例卡"},
+                "card_type": "attack",
+                "base_cost": 2,
+                "target": "single_enemy",
+                "effects": [
+                    {
+                        "trigger": "on_play",
+                        "actions": [{"op": "damage", "params": {"base_value": 180}}],
+                    }
+                ],
+            }
+        ],
+        "variants": [
+            {
+                "variant_id": f"{card_id}/epiphany_a",
+                "base_card_id": card_id,
+                "kind": "epiphany",
+                "cost_override": 1,
+                "additional_effects": [
+                    {
+                        "trigger": "on_play",
+                        "actions": [{"op": "draw", "params": {"count": 1}}],
+                    }
+                ],
+            }
+        ],
+    }
+
+
+def write_document(root: Path, name: str, document: dict) -> Path:
+    character_root = root / "characters"
+    character_root.mkdir(parents=True, exist_ok=True)
+    path = character_root / name
+    path.write_text(json.dumps(document, ensure_ascii=False), encoding="utf-8")
+    return path
+
+
+def test_catalog_loads_and_materializes_a_character_variant(tmp_path: Path) -> None:
+    write_document(tmp_path, "character_a.json", card_document())
+
+    catalog = CardCatalog.from_directory(tmp_path)
+    materialized = catalog.materialize("character_a/card_01", "character_a/card_01/epiphany_a")
+
+    assert catalog.summary.owners == 1
+    assert catalog.summary.cards == 1
+    assert catalog.summary.variants == 1
+    assert catalog.get_owner("character_a").name.zh_cn == "示例角色"
+    assert materialized.base_cost == 1
+    assert materialized.effects[-1].actions[0].op is EffectOp.DRAW
+
+
+def test_catalog_layers_epiphany_before_divine_flash_regardless_of_input_order(tmp_path: Path) -> None:
+    document = card_document()
+    document["variants"].append(
+        {
+            "variant_id": "character_a/card_01/divine_flash_a",
+            "base_card_id": "character_a/card_01",
+            "kind": "divine_flash",
+            "additional_effects": [
+                {
+                    "trigger": "on_play",
+                    "actions": [{"op": "shield", "params": {"base_value": 50}}],
+                }
+            ],
+        }
+    )
+    write_document(tmp_path, "character_a.json", document)
+    catalog = CardCatalog.from_directory(tmp_path)
+
+    materialized = catalog.materialize(
+        "character_a/card_01",
+        ["character_a/card_01/divine_flash_a", "character_a/card_01/epiphany_a"],
+    )
+
+    assert materialized.variant_ids == (
+        "character_a/card_01/epiphany_a",
+        "character_a/card_01/divine_flash_a",
+    )
+    assert [effect.actions[0].op for effect in materialized.effects] == [
+        EffectOp.DAMAGE,
+        EffectOp.DRAW,
+        EffectOp.SHIELD,
+    ]
+
+
+def test_catalog_layers_common_flash_before_divine_flash_regardless_of_input_order(tmp_path: Path) -> None:
+    document = card_document()
+    document["variants"] = [
+        {
+            "variant_id": "character_a/card_01/common_flash_draw",
+            "base_card_id": "character_a/card_01",
+            "kind": "common_flash",
+            "additional_effects": [
+                {
+                    "trigger": "on_play",
+                    "actions": [{"op": "draw", "params": {"count": 1}}],
+                }
+            ],
+        },
+        {
+            "variant_id": "character_a/card_01/divine_flash_a",
+            "base_card_id": "character_a/card_01",
+            "kind": "divine_flash",
+            "additional_effects": [
+                {
+                    "trigger": "on_play",
+                    "actions": [{"op": "shield", "params": {"base_value": 50}}],
+                }
+            ],
+        },
+    ]
+    write_document(tmp_path, "character_a.json", document)
+    catalog = CardCatalog.from_directory(tmp_path)
+
+    materialized = catalog.materialize(
+        "character_a/card_01",
+        ["character_a/card_01/divine_flash_a", "character_a/card_01/common_flash_draw"],
+    )
+
+    assert materialized.variant_ids == (
+        "character_a/card_01/common_flash_draw",
+        "character_a/card_01/divine_flash_a",
+    )
+    assert [effect.actions[0].op for effect in materialized.effects] == [
+        EffectOp.DAMAGE,
+        EffectOp.DRAW,
+        EffectOp.SHIELD,
+    ]
+
+
+def test_catalog_rejects_two_active_variants_from_the_same_layer(tmp_path: Path) -> None:
+    document = card_document()
+    document["variants"].append(
+        {
+            "variant_id": "character_a/card_01/epiphany_b",
+            "base_card_id": "character_a/card_01",
+            "kind": "epiphany",
+        }
+    )
+    write_document(tmp_path, "character_a.json", document)
+    catalog = CardCatalog.from_directory(tmp_path)
+
+    with pytest.raises(CatalogError, match="one variant from each"):
+        catalog.materialize(
+            "character_a/card_01",
+            ["character_a/card_01/epiphany_a", "character_a/card_01/epiphany_b"],
+        )
+
+
+def test_catalog_rejects_common_flash_combined_with_epiphany(tmp_path: Path) -> None:
+    document = card_document()
+    document["variants"].append(
+        {
+            "variant_id": "character_a/card_01/common_flash_draw",
+            "base_card_id": "character_a/card_01",
+            "kind": "common_flash",
+        }
+    )
+    write_document(tmp_path, "character_a.json", document)
+    catalog = CardCatalog.from_directory(tmp_path)
+
+    with pytest.raises(CatalogError, match="one variant from each"):
+        catalog.materialize(
+            "character_a/card_01",
+            ["character_a/card_01/common_flash_draw", "character_a/card_01/epiphany_a"],
+        )
+
+
+def test_catalog_rejects_duplicate_character_slots(tmp_path: Path) -> None:
+    document = card_document()
+    second_card = json.loads(json.dumps(document["cards"][0]))
+    second_card["card_id"] = "character_a/card_02"
+    document["cards"].append(second_card)
+    write_document(tmp_path, "character_a.json", document)
+
+    with pytest.raises(CatalogError, match="slot 1"):
+        CardCatalog.from_directory(tmp_path)
+
+
+def test_catalog_rejects_variants_that_reference_missing_cards(tmp_path: Path) -> None:
+    document = card_document()
+    document["cards"] = []
+    write_document(tmp_path, "orphan.json", document)
+
+    with pytest.raises(CatalogError, match="references missing card"):
+        CardCatalog.from_directory(tmp_path)
+
+
+def test_catalog_rejects_out_of_scope_origin_fields(tmp_path: Path) -> None:
+    document = card_document()
+    document["origin"] = "neutral"
+    write_document(tmp_path, "neutral.json", document)
+
+    with pytest.raises(CatalogError, match="unknown catalog fields"):
+        CardCatalog.from_directory(tmp_path)
+
+
+def test_empty_character_catalog_is_valid(tmp_path: Path) -> None:
+    (tmp_path / "characters").mkdir()
+
+    catalog = CardCatalog.from_directory(tmp_path)
+
+    assert catalog.summary.cards == 0
+    assert catalog.summary.source_files == 0

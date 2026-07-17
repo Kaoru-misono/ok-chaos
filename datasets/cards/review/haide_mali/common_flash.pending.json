@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "review_status": "pending",
+  "owner_id": "haide_mali",
+  "samples": [
+    {
+      "sample_id": "s20260717-114847-312497-2076b1a9",
+      "card_id": "haide_mali/card_03",
+      "card_name_zh_tw": "劍之雨",
+      "variant_id": "haide_mali/card_03/common_flash_draw_1",
+      "kind": "common_flash",
+      "effect_id": "draw_1",
+      "raw_effect_text_zh_tw": "抽取1",
+      "user_confirmed_variant_kind": true,
+      "ocr_confidence": 0.999918,
+      "image_sha256": "573ba7e16087744d3effbe4a8823d2f112cae19756b56fefb26c9f4fc3635412"
+    }
+  ]
+}

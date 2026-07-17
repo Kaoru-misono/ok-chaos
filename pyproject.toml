@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ok-chaos"
+version = "0.1.0"
+description = "A clean-room Chaos automation application built on ok-script"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = { text = "MIT" }
+dependencies = [
+    "ok-script==1.0.163",
+    "onnxocr-ppocrv5==0.0.18",
+    # This OCR stack is already verified by the reference build on Python 3.12.
+    "openvino==2025.2.0",
+    "opencv-python==4.12.0.88",
+    "OpenCC==1.2.0",
+    "pynput==1.8.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.1.1",
+    "pytest-cov>=7,<8",
+    "pyinstaller>=6.15,<7",
+    "ruff>=0.12,<1",
+]
+
+[tool.setuptools.packages.find]
+include = ["src*"]
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-config --strict-markers"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["src.chaos"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]

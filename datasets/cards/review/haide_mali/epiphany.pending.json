@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "review_status": "pending",
+  "owner_id": "haide_mali",
+  "branch_order": "left_to_right",
+  "source_overviews": {
+    "haide_mali/card_03": "s20260717-095055-442734-8aaaec8c",
+    "haide_mali/card_04": "s20260717-095106-042297-decc218b",
+    "haide_mali/card_05": "s20260717-095115-261766-53f383df",
+    "haide_mali/card_06": "s20260717-095128-462010-12a814d8"
+  },
+  "variants": [
+    {
+      "variant_id": "haide_mali/card_03/epiphany_a",
+      "base_card_id": "haide_mali/card_03",
+      "branch": "a",
+      "sample_id": "ds20260717-095055-442734-8aaaec8c-epiphany-a",
+      "base_cost": 1,
+      "card_type": "attack",
+      "keywords": ["link", "rest"],
+      "raw_effect_text_zh_tw": "造成101%×2的傷害。感應：生成2張極光劍。"
+    },
+    {
+      "variant_id": "haide_mali/card_03/epiphany_b",
+      "base_card_id": "haide_mali/card_03",
+      "branch": "b",
+      "sample_id": "ds20260717-095055-442734-8aaaec8c-epiphany-b",
+      "base_cost": 2,
+      "card_type": "attack",
+      "keywords": ["quick"],
+      "raw_effect_text_zh_tw": "造成227%的傷害。依發動前手牌的極光劍數量額外打擊1次。感應：生成1張極光劍。"
+    },
+    {
+      "variant_id": "haide_mali/card_03/epiphany_c",
+      "base_card_id": "haide_mali/card_03",
+      "branch": "c",
+      "sample_id": "ds20260717-095055-442734-8aaaec8c-epiphany-c",
+      "base_cost": 1,
+      "card_type": "skill",
+      "keywords": [],
+      "raw_effect_text_zh_tw": "發動墳墓中的5張極光劍，對目標發動額外攻擊。"
+    },
+    {
+      "variant_id": "haide_mali/card_03/epiphany_d",
+      "base_card_id": "haide_mali/card_03",
+      "branch": "d",
+      "sample_id": "ds20260717-095055-442734-8aaaec8c-epiphany-d",
+      "base_cost": 1,
+      "card_type": "skill",
+      "keywords": [],
+      "raw_effect_text_zh_tw": "生成2張極光劍，並賦予該卡牌回收。"
+    },
+    {
+      "variant_id": "haide_mali/card_03/epiphany_e",
+      "base_card_id": "haide_mali/card_03",
+      "branch": "e",
+      "sample_id": "ds20260717-095055-442734-8aaaec8c-epiphany-e",
+      "base_cost": 3,
+      "card_type": "attack",
+      "keywords": ["exhaust", "ultimate", "retain", "unique"],
+      "raw_effect_text_zh_tw": "對所有敵人造成630%的傷害。若手牌中有解放極光，則將其消滅，並依墳墓中極光劍的數量，傷害量+100%。"
+    },
+    {
+      "variant_id": "haide_mali/card_04/epiphany_a",
+      "base_card_id": "haide_mali/card_04",
+      "branch": "a",
+      "sample_id": "ds20260717-095106-042297-decc218b-epiphany-a",
+      "base_cost": 1,
+      "card_type": "skill",
+      "keywords": ["link", "rest"],
+      "raw_effect_text_zh_tw": "抽取3。本回合內將這些卡牌連結。"
+    },
+    {
+      "variant_id": "haide_mali/card_04/epiphany_b",
+      "base_card_id": "haide_mali/card_04",
+      "branch": "b",
+      "sample_id": "ds20260717-095106-042297-decc218b-epiphany-b",
+      "base_cost": 1,
+      "card_type": "skill",
+      "keywords": ["rest"],
+      "raw_effect_text_zh_tw": "抽取3。手牌中費用為1以下的卡牌在本回合內連結。"
+    },
+    {
+      "variant_id": "haide_mali/card_04/epiphany_c",
+      "base_card_id": "haide_mali/card_04",
+      "branch": "c",
+      "sample_id": "ds20260717-095106-042297-decc218b-epiphany-c",
+      "base_cost": 0,
+      "card_type": "skill",
+      "keywords": ["quick"],
+      "raw_effect_text_zh_tw": "抽取1。手牌中的安息卡牌在本回合內連結。"
+    },
+    {
+      "variant_id": "haide_mali/card_04/epiphany_d",
+      "base_card_id": "haide_mali/card_04",
+      "branch": "d",
+      "sample_id": "ds20260717-095106-042297-decc218b-epiphany-d",
+      "base_cost": 0,
+      "card_type": "skill",
+      "keywords": ["exhaust_2"],
+      "raw_effect_text_zh_tw": "從抽牌堆和棄牌堆中選擇1張卡牌，賦予該卡牌連結並移動至手牌。"
+    },
+    {
+      "variant_id": "haide_mali/card_04/epiphany_e",
+      "base_card_id": "haide_mali/card_04",
+      "branch": "e",
+      "sample_id": "ds20260717-095106-042297-decc218b-epiphany-e",
+      "base_cost": 1,
+      "card_type": "skill",
+      "keywords": ["quick"],
+      "raw_effect_text_zh_tw": "自身的攻擊卡牌抽取2。手牌的所有攻擊卡牌在本回合內連結。"
+    },
+    {
+      "variant_id": "haide_mali/card_05/epiphany_a",
+      "base_card_id": "haide_mali/card_05",
+      "branch": "a",
+      "sample_id": "ds20260717-095115-261766-53f383df-epiphany-a",
+      "base_cost": 1,
+      "card_type": "attack",
+      "keywords": ["link"],
+      "raw_effect_text_zh_tw": "造成227%的傷害。依發動前手牌的連結卡牌數量，傷害量+180%。"
+    },
+    {
+      "variant_id": "haide_mali/card_05/epiphany_b",
+      "base_card_id": "haide_mali/card_05",
+      "branch": "b",
+      "sample_id": "ds20260717-095115-261766-53f383df-epiphany-b",
+      "base_cost": 2,
+      "card_type": "attack",
+      "keywords": ["link", "quick"],
+      "raw_effect_text_zh_tw": "造成378%的傷害。若發動前手牌的連結卡牌為3張以上，造成3倍傷害。"
+    },
+    {
+      "variant_id": "haide_mali/card_05/epiphany_c",
+      "base_card_id": "haide_mali/card_05",
+      "branch": "c",
+      "sample_id": "ds20260717-095115-261766-53f383df-epiphany-c",
+      "base_cost": 1,
+      "card_type": "attack",
+      "keywords": ["link", "rest"],
+      "raw_effect_text_zh_tw": "造成126%的傷害。若此卡牌在手牌或墳墓，連結卡牌的傷害量+80%。"
+    },
+    {
+      "variant_id": "haide_mali/card_05/epiphany_d",
+      "base_card_id": "haide_mali/card_05",
+      "branch": "d",
+      "sample_id": "ds20260717-095115-261766-53f383df-epiphany-d",
+      "base_cost": 3,
+      "card_type": "skill",
+      "keywords": ["link", "exhaust"],
+      "raw_effect_text_zh_tw": "發動手牌中所有的連結卡牌且不丟棄。"
+    },
+    {
+      "variant_id": "haide_mali/card_05/epiphany_e",
+      "base_card_id": "haide_mali/card_05",
+      "branch": "e",
+      "sample_id": "ds20260717-095115-261766-53f383df-epiphany-e",
+      "base_cost": 2,
+      "card_type": "attack",
+      "keywords": ["link", "unique"],
+      "raw_effect_text_zh_tw": "直接使用時，造成441%×2的傷害。被丟棄時，對所有敵人造成378%的傷害。"
+    },
+    {
+      "variant_id": "haide_mali/card_06/epiphany_a",
+      "base_card_id": "haide_mali/card_06",
+      "branch": "a",
+      "sample_id": "ds20260717-095128-462010-12a814d8-epiphany-a",
+      "base_cost": 2,
+      "card_type": "skill",
+      "keywords": ["link", "rest"],
+      "raw_effect_text_zh_tw": "生成2張極光劍。持續1回合極光劍的傷害量+70%。"
+    },
+    {
+      "variant_id": "haide_mali/card_06/epiphany_b",
+      "base_card_id": "haide_mali/card_06",
+      "branch": "b",
+      "sample_id": "ds20260717-095128-462010-12a814d8-epiphany-b",
+      "base_cost": 2,
+      "card_type": "skill",
+      "keywords": ["rest"],
+      "raw_effect_text_zh_tw": "生成2張極光劍。接下來的2次極光劍傷害量+200%。"
+    },
+    {
+      "variant_id": "haide_mali/card_06/epiphany_c",
+      "base_card_id": "haide_mali/card_06",
+      "branch": "c",
+      "sample_id": "ds20260717-095128-462010-12a814d8-epiphany-c",
+      "base_cost": 2,
+      "card_type": "skill",
+      "keywords": ["link"],
+      "raw_effect_text_zh_tw": "依手牌中連結卡牌數量生成極光劍。"
+    },
+    {
+      "variant_id": "haide_mali/card_06/epiphany_d",
+      "base_card_id": "haide_mali/card_06",
+      "branch": "d",
+      "sample_id": "ds20260717-095128-462010-12a814d8-epiphany-d",
+      "base_cost": 2,
+      "card_type": "skill",
+      "keywords": ["link", "rest"],
+      "raw_effect_text_zh_tw": "在棄牌堆中生成6張極光劍。"
+    },
+    {
+      "variant_id": "haide_mali/card_06/epiphany_e",
+      "base_card_id": "haide_mali/card_06",
+      "branch": "e",
+      "sample_id": "ds20260717-095128-462010-12a814d8-epiphany-e",
+      "base_cost": 2,
+      "card_type": "upgrade",
+      "keywords": ["rest", "unique"],
+      "raw_effect_text_zh_tw": "回合開始時生成2張極光劍。極光劍傷害量+50%。"
+    }
+  ]
+}
